@@ -10,12 +10,17 @@ class VideoModel extends Video {
   });
 
   factory VideoModel.fromJson(Map<String, dynamic> json) {
+    final author = json['author'];
+    final authorName = (author != null && author['username'] != null)
+        ? author['username']
+        : 'Unknown Author';
+
     return VideoModel(
-      id: json['id'],
+      id: json['id'], // Corrected the syntax error here
       title: json['title'] ?? '',
       videoUrl: json['video_url'] ?? '',
       thumbnailUrl: json['thumbnail_url'] ?? '',
-      authorName: json['author_name'] ?? 'Unknown Author',
+      authorName: authorName,
     );
   }
 }

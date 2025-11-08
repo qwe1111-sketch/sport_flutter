@@ -17,9 +17,13 @@ dependencies:
   http: ^1.2.1
   shared_preferences: ^2.2.3
 
-  # New dependencies for video and image caching
+  # Video & Image Caching
   video_player: ^2.8.6
   cached_network_image: ^3.3.1
+  flutter_cache_manager: ^3.3.2 # For pre-caching videos
+
+  # Lifecycle Management
+  visibility_detector: ^0.4.0+2
 
 dev_dependencies:
   flutter_test:

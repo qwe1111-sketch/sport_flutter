@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext traffic for specific domains needed for video playback -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">vfx.mtime.cn</domain>
+        <!-- Add any other http domains you use here -->
+    </domain-config>
+</network-security-config>

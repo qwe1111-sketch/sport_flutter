@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // Import the cache manager
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
@@ -12,8 +13,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve the use case from the context
+    // Retrieve dependencies from the context
     final getVideosUseCase = RepositoryProvider.of<GetVideos>(context);
+    final cacheManager = RepositoryProvider.of<CacheManager>(context);
 
     return DefaultTabController(
       length: 3, // For Easy, Medium, Hard
@@ -32,15 +34,24 @@ class HomePage extends StatelessWidget {
           children: [
             // Provide a new, independent VideoBloc for each tab
             BlocProvider(
-              create: (context) => VideoBloc(getVideos: getVideosUseCase),
+              create: (context) => VideoBloc(
+                getVideos: getVideosUseCase,
+                cacheManager: cacheManager, // Pass the cache manager
+              ),
               child: const _VideoList(difficulty: Difficulty.Easy),
             ),
             BlocProvider(
-              create: (context) => VideoBloc(getVideos: getVideosUseCase),
+              create: (context) => VideoBloc(
+                getVideos: getVideosUseCase,
+                cacheManager: cacheManager, // Pass the cache manager
+              ),
               child: const _VideoList(difficulty: Difficulty.Medium),
             ),
             BlocProvider(
-              create: (context) => VideoBloc(getVideos: getVideosUseCase),
+              create: (context) => VideoBloc(
+                getVideos: getVideosUseCase,
+                cacheManager: cacheManager, // Pass the cache manager
+              ),
               child: const _VideoList(difficulty: Difficulty.Hard),
             ),
           ],
@@ -120,7 +131,6 @@ class _VideoListState extends State<_VideoList> {
           case VideoError():
             return Center(child: Text('Failed to fetch videos: ${state.message}'));
 
-          // The default case that was missing
           default:
             return const Center(child: Text('Something went wrong.'));
         }
