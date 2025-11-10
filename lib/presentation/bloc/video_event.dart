@@ -17,13 +17,17 @@ class FetchVideos extends VideoEvent {
   List<Object> get props => [difficulty];
 }
 
-// A single, more powerful event to report visibility changes.
 class UpdateVideoVisibility extends VideoEvent {
   final int videoId;
-  final double visibilityFraction; // e.g., 0.0 for not visible, 1.0 for fully visible
+  final double visibilityFraction;
 
   const UpdateVideoVisibility(this.videoId, this.visibilityFraction);
 
   @override
   List<Object> get props => [videoId, visibilityFraction];
+}
+
+// New event to explicitly pause all video playback on the home screen
+class PausePlayback extends VideoEvent {
+  const PausePlayback();
 }

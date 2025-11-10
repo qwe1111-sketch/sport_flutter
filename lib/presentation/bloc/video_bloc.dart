@@ -20,6 +20,14 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       : super(VideoInitial()) {
     on<FetchVideos>(_onFetchVideos);
     on<UpdateVideoVisibility>(_onUpdateVideoVisibility);
+    on<PausePlayback>(_onPausePlayback); // Handle the new event
+  }
+
+  // New handler to force pause all playback
+  void _onPausePlayback(PausePlayback event, Emitter<VideoState> emit) {
+    if (state is VideoLoaded) {
+      emit((state as VideoLoaded).copyWith(activeVideoId: null));
+    }
   }
 
   void _onUpdateVideoVisibility(UpdateVideoVisibility event, Emitter<VideoState> emit) {
@@ -45,17 +53,14 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
         }
       });
     }
-    
-    // --- Pre-caching Logic ---
+
     if (newActiveId != null) {
       final currentIndex = _videos.indexWhere((v) => v.id == newActiveId);
       if (currentIndex != -1 && currentIndex + 1 < _videos.length) {
         final nextVideoUrl = _videos[currentIndex + 1].videoUrl;
-        // Fire and forget. The cache manager will handle the download.
         cacheManager.downloadFile(nextVideoUrl);
       }
     }
-    // --- End of Pre-caching Logic ---
 
     final currentState = state as VideoLoaded;
     if (currentState.activeVideoId != newActiveId) {

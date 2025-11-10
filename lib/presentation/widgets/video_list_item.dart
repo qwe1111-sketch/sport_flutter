@@ -12,8 +12,14 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 class VideoListItem extends StatefulWidget {
   final Video video;
+  // Add the field to accept the full list of videos
+  final List<Video> allVideos;
 
-  const VideoListItem({super.key, required this.video});
+  const VideoListItem({
+    super.key,
+    required this.video,
+    this.allVideos = const [], // Initialize with an empty list for safety
+  });
 
   @override
   State<VideoListItem> createState() => _VideoListItemState();
@@ -33,7 +39,6 @@ class _VideoListItemState extends State<VideoListItem> {
       _controller!.play();
       return;
     }
-
     final cacheManager = RepositoryProvider.of<CacheManager>(context);
     final fileInfo = await cacheManager.getFileFromCache(widget.video.videoUrl) ??
         await cacheManager.downloadFile(widget.video.videoUrl);
@@ -64,10 +69,18 @@ class _VideoListItemState extends State<VideoListItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // On tap, navigate to the detail page
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => VideoDetailPage(video: widget.video),
-        ));
+        // 1. Pause home screen playback to release resources before navigating.
+        context.read<VideoBloc>().add(const PausePlayback());
+
+        // 2. Navigate, now correctly passing the full list of videos.
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => VideoDetailPage(
+              video: widget.video,
+              recommendedVideos: widget.allVideos, // The crucial part
+            ),
+          ),
+        );
       },
       child: BlocListener<VideoBloc, VideoState>(
         listener: (context, state) {

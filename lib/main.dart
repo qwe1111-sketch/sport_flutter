@@ -15,10 +15,12 @@ import 'package:sport_flutter/domain/usecases/send_verification_code.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/presentation/pages/login_page.dart';
 
+// RouteObserver to watch for navigation events
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // --- Dependency Injection ---
   final client = http.Client();
 
   // Auth Dependencies
@@ -68,7 +70,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        // Provide dependencies to the widget tree
         RepositoryProvider.value(value: getVideosUseCase),
         RepositoryProvider.value(value: videoCacheManager),
       ],
@@ -85,6 +86,7 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
+          navigatorObservers: [routeObserver], // Register the observer
           home: LoginPage(),
         ),
       ),
