@@ -11,7 +11,7 @@ class OssUploadService {
 
   OssUploadService({required this.stsDataSource, required this.dio});
 
-  Future<String> uploadFile(File file) async {
+  Future<String> uploadFile(File file, {String? uploadPath}) async {
     try {
       print("--- 1. Starting OSS Upload ---");
       final credentials = await stsDataSource.getOssCredentials();
@@ -21,17 +21,18 @@ class OssUploadService {
       final String extension = path.extension(file.path).toLowerCase();
 
       String uploadFolder;
-      if (['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].contains(extension)) {
+      if (uploadPath != null) {
+        uploadFolder = uploadPath;
+      } else if (['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].contains(extension)) {
         uploadFolder = 'videos/communityimage';
       } else if (['.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv'].contains(extension)) {
         uploadFolder = 'videos/communityvideos';
       } else {
-        uploadFolder = 'videos/others'; 
+        uploadFolder = 'videos/others';
       }
 
       final String objectKey = '$uploadFolder/${DateTime.now().millisecondsSinceEpoch}-$fileName';
       final String host = '${credentials.bucket}.${credentials.region}.aliyuncs.com';
-      final String fileUrl = 'https://$host/$objectKey';
 
       final String date = HttpDate.format(DateTime.now().toUtc());
       final String contentType = 'application/octet-stream';
@@ -72,8 +73,8 @@ class OssUploadService {
       );
 
       print("--- 5. Upload Successful ---");
-      // Reverted: Return the full URL to align with the new backend logic.
-      return fileUrl;
+      // Return only the object key (the path within the bucket)
+      return objectKey;
 
     } catch (e) {
       print('---!!! UPLOAD FAILED !!!---');

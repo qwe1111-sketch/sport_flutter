@@ -16,6 +16,7 @@ dependencies:
   equatable: ^2.0.5
   http: ^1.2.1
   shared_preferences: ^2.2.3
+  shimmer: ^3.0.0
 
   # Video & Image Caching
   video_player: ^2.8.6

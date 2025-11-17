@@ -73,32 +73,47 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   }
 
   Future<void> _onFetchPosts(FetchPosts event, Emitter<CommunityState> emit) async {
-    emit(CommunityLoading());
+    final isInitialLoad = state is! CommunityLoaded;
+
+    // Only show the full-screen loading shimmer on the initial load.
+    if (isInitialLoad) {
+      emit(CommunityLoading());
+    }
+
     try {
       final posts = await getCommunityPosts();
       emit(CommunityLoaded(posts));
     } catch (e) {
-      emit(CommunityError('Failed to fetch posts: ${e.toString()}'));
+      // If the refresh fails, we can choose to just log it and keep the old data.
+      // If the initial load fails, we must show an error screen.
+      if (isInitialLoad) {
+        emit(CommunityError('Failed to fetch posts: ${e.toString()}'));
+      } else {
+        // For a refresh failure, we might not want to disrupt the user with a full error screen.
+        // We can just print to the console. The user still sees their (stale) data.
+        print('Silent refresh failed: ${e.toString()}');
+      }
     }
   }
 
   Future<void> _onAddPost(AddPost event, Emitter<CommunityState> emit) async {
+    // Indicate that posting is in progress.
+    emit(CommunityLoading()); 
+
     try {
       String? imageUrl;
       String? videoUrl;
 
-      // 1. If a file is provided, upload it to OSS first.
       if (event.mediaFile != null) {
         final uploadedUrl = await ossUploadService.uploadFile(event.mediaFile!);
-        // Basic logic to determine if it's an image or video based on extension
-        if (['.jpg', '.jpeg', '.png', '.gif'].any((ext) => uploadedUrl.toLowerCase().endsWith(ext))) {
+        final extension = event.mediaFile!.path.split('.').last.toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
           imageUrl = uploadedUrl;
         } else {
           videoUrl = uploadedUrl;
         }
       }
 
-      // 2. Create the post with the (optional) URL.
       await createCommunityPost(
         title: event.title,
         content: event.content,
@@ -106,12 +121,11 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         videoUrl: videoUrl,
       );
       
-      // 3. Refresh the list to show the new post.
+      emit(CommunityPostSuccess());
       add(FetchPosts());
 
     } catch (e) {
       print('Failed to create post: ${e.toString()}');
-      // Optionally emit an error state to the UI
       emit(CommunityError('发帖失败: ${e.toString()}'));
     }
   }

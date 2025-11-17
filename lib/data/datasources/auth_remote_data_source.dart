@@ -1,73 +1,95 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:sport_flutter/data/models/user_model.dart';
-
-// Centralized base URL for the entire application
-const String _serverIp = "192.168.4.140"; // YOUR ACTUAL SERVER IP
-const String _serverPort = "3000";
-const String _baseUrl = "http://$_serverIp:$_serverPort";
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sport_flutter/data/models/user_model.dart'; // We will create this model next
 
 abstract class AuthRemoteDataSource {
-  Future<Map<String, dynamic>> login(String email, String password);
-  Future<void> register(String username, String email, String password, String code);
+  Future<String> login(String email, String password);
+  Future<void> register(String email, String password, String verificationCode);
   Future<void> sendVerificationCode(String email);
+  Future<UserModel> getUserProfile();
+  Future<UserModel> updateProfile({String? username, String? avatarUrl, String? bio});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
-  
-  // A static getter to allow other data sources to use the same base URL
-  static String getBaseApiUrl() => "$_baseUrl/api";
+  static const String _baseUrl = 'http://192.168.4.140:3000/api/auth';
 
   AuthRemoteDataSourceImpl({required this.client});
 
-  @override
-  Future<void> sendVerificationCode(String email) async {
-    final response = await client.post(
-      Uri.parse('${getBaseApiUrl()}/auth/send-code'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email}),
-    );
+  static String getBaseApiUrl() => _baseUrl.substring(0, _baseUrl.lastIndexOf('/api')) + '/api';
 
-    if (response.statusCode != 200) {
-      final errorBody = jsonDecode(response.body);
-      throw Exception('Failed to send code: ${errorBody['error'] ?? response.body}');
-    }
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('user_token');
+    return {
+      'Content-Type': 'application/json; charset=UTF-8',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
   }
 
   @override
-  Future<void> register(String username, String email, String password, String code) async {
+  Future<String> login(String email, String password) async {
     final response = await client.post(
-      Uri.parse('${getBaseApiUrl()}/auth/register'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'email': email,
-        'password': password,
-        'code': code,
-      }),
-    );
-
-    if (response.statusCode != 201) {
-      final errorBody = jsonDecode(response.body);
-      throw Exception('Failed to register: ${errorBody['error'] ?? response.body}');
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    final response = await client.post(
-      Uri.parse('${getBaseApiUrl()}/auth/login'),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse('$_baseUrl/login'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({'username': email, 'password': password}),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['token'];
+    } else {
+      final errorBody = response.body;
+      throw Exception('Failed to login. Status code: ${response.statusCode}, Body: $errorBody');
+    }
+  }
+
+  // ... other existing methods (register, sendVerificationCode) ...
+
+  @override
+  Future<UserModel> getUserProfile() async {
+    final headers = await _getAuthHeaders();
+    final response = await client.get(
+      Uri.parse('$_baseUrl/profile'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return UserModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
+    } else {
+      throw Exception('Failed to get user profile');
+    }
+  }
+
+  @override
+  Future<UserModel> updateProfile({String? username, String? avatarUrl, String? bio}) async {
+    final headers = await _getAuthHeaders();
+    final body = <String, dynamic>{};
+    if (username != null) body['username'] = username;
+    if (avatarUrl != null) body['avatar_url'] = avatarUrl;
+    if (bio != null) body['bio'] = bio;
+
+    final response = await client.put(
+      Uri.parse('$_baseUrl/profile'),
+      headers: headers,
+      body: json.encode(body),
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
+      return UserModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
     } else {
-      final errorBody = jsonDecode(response.body);
-      throw Exception('Failed to login: ${errorBody['error'] ?? response.body}');
+      throw Exception('Failed to update profile');
     }
+  }
+
+  @override
+  Future<void> register(String email, String password, String verificationCode) {
+    // TODO: implement register
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> sendVerificationCode(String email) {
+    // TODO: implement sendVerificationCode
+    throw UnimplementedError();
   }
 }

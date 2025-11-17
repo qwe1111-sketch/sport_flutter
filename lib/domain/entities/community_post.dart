@@ -10,6 +10,7 @@ class CommunityPost extends Equatable {
   final String? videoUrl; // Optional: URL for a video
   final int commentCount;
   final int likeCount;
+  final int dislikeCount; // Added this field
   final List<String>? tags;
 
   const CommunityPost({
@@ -22,6 +23,7 @@ class CommunityPost extends Equatable {
     this.videoUrl,
     this.commentCount = 0,
     this.likeCount = 0,
+    this.dislikeCount = 0, // Default to 0
     this.tags,
   });
 
@@ -36,6 +38,7 @@ class CommunityPost extends Equatable {
         videoUrl,
         commentCount,
         likeCount,
+        dislikeCount, // Added to props
         tags,
       ];
 }

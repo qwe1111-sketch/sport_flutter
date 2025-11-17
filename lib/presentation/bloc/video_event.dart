@@ -27,7 +27,16 @@ class UpdateVideoVisibility extends VideoEvent {
   List<Object> get props => [videoId, visibilityFraction];
 }
 
-// New event to explicitly pause all video playback on the home screen
 class PausePlayback extends VideoEvent {
   const PausePlayback();
+}
+
+// New event for favoriting/unfavoriting a video
+class ToggleFavoriteStatus extends VideoEvent {
+  final int videoId;
+
+  const ToggleFavoriteStatus(this.videoId);
+
+  @override
+  List<Object> get props => [videoId];
 }

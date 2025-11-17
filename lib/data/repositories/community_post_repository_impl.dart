@@ -1,6 +1,6 @@
+import 'package:sport_flutter/data/datasources/community_remote_data_source.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/domain/repositories/community_post_repository.dart';
-import 'package:sport_flutter/data/datasources/community_remote_data_source.dart';
 
 class CommunityPostRepositoryImpl implements CommunityPostRepository {
   final CommunityRemoteDataSource remoteDataSource;
@@ -9,32 +9,21 @@ class CommunityPostRepositoryImpl implements CommunityPostRepository {
 
   @override
   Future<List<CommunityPost>> getPosts() async {
-    try {
-      return await remoteDataSource.getPosts();
-    } catch (e) {
-      print('Error in CommunityPostRepositoryImpl (getPosts): $e');
-      rethrow;
-    }
+    return await remoteDataSource.getPosts();
   }
 
   @override
-  Future<CommunityPost> createPost({
-    required String title,
-    required String content,
-    String? imageUrl,
-    String? videoUrl,
-  }) async {
-    try {
-      // Forward the call, including optional media URLs, to the data source.
-      return await remoteDataSource.createPost(
-        title: title,
-        content: content,
-        imageUrl: imageUrl,
-        videoUrl: videoUrl,
-      );
-    } catch (e) {
-      print('Error in CommunityPostRepositoryImpl (createPost): $e');
-      rethrow;
-    }
+  Future<List<CommunityPost>> getMyPosts() async {
+    return await remoteDataSource.getMyPosts();
+  }
+
+  @override
+  Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl) async {
+    return await remoteDataSource.createPost(title, content, imageUrl, videoUrl);
+  }
+
+  @override
+  Future<void> deletePost(int postId) async {
+    return await remoteDataSource.deletePost(postId);
   }
 }

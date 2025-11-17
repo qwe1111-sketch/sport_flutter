@@ -3,11 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
+import 'package:sport_flutter/domain/usecases/favorite_video.dart';
+import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/main.dart'; // Import to get the routeObserver
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_event.dart';
 import 'package:sport_flutter/presentation/bloc/video_state.dart';
 import 'package:sport_flutter/presentation/widgets/video_list_item.dart';
+import 'package:sport_flutter/presentation/pages/video_detail_page.dart';
 
 class VideosPage extends StatefulWidget {
   const VideosPage({super.key});
@@ -24,18 +27,27 @@ class _VideosPageState extends State<VideosPage> with RouteAware, TickerProvider
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-
-    final getVideosUseCase = RepositoryProvider.of<GetVideos>(context, listen: false);
-    final cacheManager = RepositoryProvider.of<CacheManager>(context, listen: false);
-    
-    for (int i = 0; i < 3; i++) {
-      _blocs.add(VideoBloc(getVideos: getVideosUseCase, cacheManager: cacheManager));
-    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (_blocs.isEmpty) {
+      final getVideosUseCase = RepositoryProvider.of<GetVideos>(context, listen: false);
+      final favoriteVideoUseCase = RepositoryProvider.of<FavoriteVideo>(context, listen: false);
+      final unfavoriteVideoUseCase = RepositoryProvider.of<UnfavoriteVideo>(context, listen: false);
+      final cacheManager = RepositoryProvider.of<CacheManager>(context, listen: false);
+      
+      for (int i = 0; i < 3; i++) {
+        _blocs.add(VideoBloc(
+          getVideos: getVideosUseCase,
+          favoriteVideo: favoriteVideoUseCase,
+          unfavoriteVideo: unfavoriteVideoUseCase,
+          cacheManager: cacheManager,
+        ));
+      }
+    }
+
     routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
 
@@ -51,8 +63,10 @@ class _VideosPageState extends State<VideosPage> with RouteAware, TickerProvider
 
   @override
   void didPushNext() {
-    final activeBloc = _blocs[_tabController.index];
-    activeBloc.add(const PausePlayback());
+    if (_blocs.isNotEmpty) {
+      final activeBloc = _blocs[_tabController.index];
+      activeBloc.add(const PausePlayback());
+    }
   }
 
   @override
@@ -125,6 +139,7 @@ class _VideoListState extends State<_VideoList> {
 
   @override
   Widget build(BuildContext context) {
+    final videoBloc = context.read<VideoBloc>();
     return BlocBuilder<VideoBloc, VideoState>(
       builder: (context, state) {
         if (state is VideoLoaded) {
@@ -138,7 +153,25 @@ class _VideoListState extends State<_VideoList> {
               if (index >= state.videos.length) {
                 return const Padding(padding: EdgeInsets.all(16.0), child: Center(child: CircularProgressIndicator()));
               }
-              return VideoListItem(video: state.videos[index], allVideos: state.videos);
+              final video = state.videos[index];
+              return GestureDetector(
+                onTap: () async {
+                  videoBloc.add(const PausePlayback());
+                  final result = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) => VideoDetailPage(
+                        video: video,
+                        recommendedVideos: state.videos,
+                      ),
+                    ),
+                  );
+                  // If the favorite status changed, refresh the list.
+                  if (result == true) {
+                    videoBloc.add(FetchVideos(widget.difficulty));
+                  }
+                },
+                child: VideoListItem(video: video, allVideos: state.videos),
+              );
             },
           );
         }

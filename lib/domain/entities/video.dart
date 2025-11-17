@@ -6,10 +6,10 @@ class Video extends Equatable {
   final String videoUrl;
   final String thumbnailUrl;
   final String authorName;
-  
   final int viewCount;
   final int likeCount;
   final DateTime createdAt;
+  final bool isFavorited; // New field
 
   const Video({
     required this.id,
@@ -20,9 +20,9 @@ class Video extends Equatable {
     required this.viewCount,
     required this.likeCount,
     required this.createdAt,
+    this.isFavorited = false, // Default to false
   });
 
-  // copyWith method to allow for easy, immutable state updates
   Video copyWith({
     int? id,
     String? title,
@@ -32,6 +32,7 @@ class Video extends Equatable {
     int? viewCount,
     int? likeCount,
     DateTime? createdAt,
+    bool? isFavorited,
   }) {
     return Video(
       id: id ?? this.id,
@@ -42,9 +43,10 @@ class Video extends Equatable {
       viewCount: viewCount ?? this.viewCount,
       likeCount: likeCount ?? this.likeCount,
       createdAt: createdAt ?? this.createdAt,
+      isFavorited: isFavorited ?? this.isFavorited,
     );
   }
 
   @override
-  List<Object?> get props => [id, title, videoUrl, thumbnailUrl, authorName, viewCount, likeCount, createdAt];
+  List<Object?> get props => [id, title, videoUrl, thumbnailUrl, authorName, viewCount, likeCount, createdAt, isFavorited];
 }

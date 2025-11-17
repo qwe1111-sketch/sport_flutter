@@ -11,4 +11,7 @@ abstract class VideoRepository {
     required Difficulty difficulty,
     required int page,
   });
+  Future<void> favoriteVideo(int videoId);
+  Future<void> unfavoriteVideo(int videoId);
+  Future<List<Video>> getFavoriteVideos();
 }
