@@ -60,7 +60,7 @@ class PostCommentRemoteDataSourceImpl implements PostCommentRemoteDataSource {
 
     if (response.statusCode != 201) {
       throw Exception('Failed to create comment. Status: ${response.statusCode}');
-    }git add .
+    }
   }
 
   @override
