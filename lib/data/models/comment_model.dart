@@ -8,15 +8,19 @@ class CommentModel extends Comment {
     required super.likeCount,
     required super.dislikeCount,
     required super.createdAt,
-    required super.replyCount, // Added required field
+    required super.replyCount,
     super.replies = const [],
     super.userVote,
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
-    // Recursively parse replies
     var repliesFromJson = json['replies'] as List? ?? [];
     List<Comment> replyList = repliesFromJson.map((i) => CommentModel.fromJson(i)).toList();
+
+    var createdAtString = json['created_at'] as String? ?? '';
+    if (createdAtString.endsWith('ZZ')) {
+      createdAtString = createdAtString.substring(0, createdAtString.length - 1);
+    }
 
     return CommentModel(
       id: json['id'] ?? 0,
@@ -24,11 +28,10 @@ class CommentModel extends Comment {
       username: json['username'] ?? 'Unknown User',
       likeCount: json['like_count'] ?? 0,
       dislikeCount: json['dislike_count'] ?? 0,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
+      createdAt: createdAtString.isNotEmpty ? DateTime.parse(createdAtString) : DateTime.now(),
       replies: replyList,
-      // Parse new fields from JSON
       replyCount: json['reply_count'] ?? 0,
-      userVote: json['user_vote'], // This can be null
+      userVote: json['user_vote'],
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/pages/community_page.dart';
 import 'package:sport_flutter/presentation/pages/profile_page.dart';
 import 'package:sport_flutter/presentation/pages/videos_page.dart';
@@ -17,9 +18,9 @@ class _HomePageState extends State<HomePage> {
   // they are instantiated once and get a correct BuildContext.
   // Using 'late' defers initialization until they are first accessed.
   late final List<Widget> _widgetOptions = [
-    VideosPage(),
-    CommunityPage(),
-    ProfilePage(),
+    const VideosPage(),
+    const CommunityPage(),
+    const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -30,24 +31,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: _widgetOptions,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '首页',
+            icon: const Icon(Icons.home),
+            label: l10n.home, // FIX: Use localization
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: '社区',
+            icon: const Icon(Icons.group),
+            label: l10n.community, // FIX: Use localization
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '我的',
+            icon: const Icon(Icons.person),
+            label: l10n.profile, // FIX: Use localization
           ),
         ],
         currentIndex: _selectedIndex,

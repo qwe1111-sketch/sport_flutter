@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 
 class VideoActionButtons extends StatelessWidget {
   final bool isLiked;
@@ -26,28 +27,34 @@ class VideoActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildActionButton(
-          context: context,
-          icon: isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-          label: _formatNumber(likeCount),
-          onPressed: onLike,
+        Expanded(
+          child: _buildActionButton(
+            context: context,
+            icon: isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+            label: _formatNumber(context, likeCount),
+            onPressed: onLike,
+          ),
         ),
-        _buildActionButton(
-          context: context,
-          icon: isDisliked ? Icons.thumb_down : Icons.thumb_down_outlined,
-          label: '不喜欢',
-          onPressed: onDislike,
+        Expanded(
+          child: _buildActionButton(
+            context: context,
+            icon: isDisliked ? Icons.thumb_down : Icons.thumb_down_outlined,
+            label: l10n.dislike,
+            onPressed: onDislike,
+          ),
         ),
-        _buildActionButton(
-          context: context,
-          icon: isFavorited ? Icons.star : Icons.star_border,
-          label: '收藏',
-          onPressed: onFavorite,
+        Expanded(
+          child: _buildActionButton(
+            context: context,
+            icon: isFavorited ? Icons.star : Icons.star_border,
+            label: l10n.favorite,
+            onPressed: onFavorite,
+          ),
         ),
-        const SizedBox.shrink(),
       ],
     );
   }
@@ -78,5 +85,11 @@ class VideoActionButtons extends StatelessWidget {
     );
   }
 
-  String _formatNumber(int n) => (n >= 10000) ? '${(n / 10000).toStringAsFixed(1)}万' : n.toString();
+  String _formatNumber(BuildContext context, int n) {
+    final l10n = AppLocalizations.of(context)!;
+    if (n >= 10000) {
+      return '${(n / 10000).toStringAsFixed(1)}${l10n.tenThousand}';
+    } 
+    return n.toString();
+  }
 }

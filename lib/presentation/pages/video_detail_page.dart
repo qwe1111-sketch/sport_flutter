@@ -12,7 +12,9 @@ import 'package:sport_flutter/data/models/video_model.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/comment_bloc.dart';
+import 'package:sport_flutter/presentation/bloc/favorites_bloc.dart';
 import 'package:sport_flutter/presentation/widgets/comment_widgets.dart';
 import 'package:sport_flutter/presentation/widgets/video_intro_panel.dart';
 import 'package:sport_flutter/presentation/widgets/video_player_widget.dart';
@@ -117,12 +119,13 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         final video = VideoModel.fromJson(data);
         final isLiked = data['isLikedByUser'] ?? false;
         final isDisliked = data['isDislikedByUser'] ?? false;
+        final isFavorited = data['isFavorited'] ?? false; // Explicitly parse isFavorited
 
         setState(() {
           _currentVideo = video;
           _isLiked = isLiked;
           _isDisliked = isDisliked;
-          _isFavorited = video.isFavorited;
+          _isFavorited = isFavorited; // Use the parsed value
         });
       }
     } catch (_) {
@@ -165,8 +168,10 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     try {
       if (isCurrentlyFavorited) {
         await context.read<UnfavoriteVideo>()(_currentVideo.id);
+        context.read<FavoritesBloc>().add(RemoveFavorite(_currentVideo));
       } else {
         await context.read<FavoriteVideo>()(_currentVideo.id);
+        context.read<FavoritesBloc>().add(AddFavorite(_currentVideo));
       }
     } catch (e) {
       setState(() {
@@ -174,7 +179,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('操作失败: $e')),
+          SnackBar(content: Text('Operation failed: $e')),
         );
       }
     }
@@ -222,8 +227,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   }
 
   void _exitFullScreen() {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
   }
   
   void _onShare() {
@@ -278,13 +283,14 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   }
 
   Widget _buildMetaAndCommentsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return BlocProvider.value(
       value: _commentBloc,
       child: DefaultTabController(
         length: 2,
         child: Column(
           children: [
-            const TabBar(tabs: [Tab(text: '简介'), Tab(text: '评论')]),
+            TabBar(tabs: [Tab(text: l10n.introduction), Tab(text: l10n.comments)]),
             Expanded(
               child: TabBarView(
                 children: [

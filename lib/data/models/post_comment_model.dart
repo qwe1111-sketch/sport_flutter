@@ -28,6 +28,11 @@ class PostCommentModel {
   });
 
   factory PostCommentModel.fromJson(Map<String, dynamic> json) {
+    var createdAtString = json['createdAt'] as String;
+    if (createdAtString.endsWith('ZZ')) {
+      createdAtString = createdAtString.substring(0, createdAtString.length - 1);
+    }
+
     return PostCommentModel(
       id: json['id'] as int,
       parentCommentId: json['parentCommentId'] as int?,
@@ -35,7 +40,7 @@ class PostCommentModel {
       username: json['username'] as String,
       likeCount: json['likeCount'] as int? ?? 0,
       dislikeCount: json['dislikeCount'] as int? ?? 0,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.parse(createdAtString), // Keep as UTC
       replyCount: json['replyCount'] as int? ?? 0,
       replies: (json['replies'] as List<dynamic>? ?? [])
           .map((replyJson) => PostCommentModel.fromJson(replyJson as Map<String, dynamic>))

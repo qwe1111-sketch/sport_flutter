@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sport_flutter/data/models/user_model.dart'; // We will create this model next
 
 abstract class AuthRemoteDataSource {
-  Future<String> login(String email, String password);
-  Future<void> register(String email, String password, String verificationCode);
+  Future<String> login(String username, String password);
+  Future<void> register(String username, String email, String password, String verificationCode);
   Future<void> sendVerificationCode(String email);
   Future<UserModel> getUserProfile();
   Future<UserModel> updateProfile({String? username, String? avatarUrl, String? bio});
@@ -29,22 +29,52 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<String> login(String email, String password) async {
+  Future<String> login(String username, String password) async {
     final response = await client.post(
       Uri.parse('$_baseUrl/login'),
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({'username': email, 'password': password}),
+      body: jsonEncode({'username': username, 'password': password}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['token'];
     } else {
-      final errorBody = response.body;
-      throw Exception('Failed to login. Status code: ${response.statusCode}, Body: $errorBody');
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
     }
   }
 
-  // ... other existing methods (register, sendVerificationCode) ...
+  @override
+  Future<void> register(String username, String email, String password, String verificationCode) async {
+    final response = await client.post(
+      Uri.parse('$_baseUrl/register'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({
+        'username': username,
+        'email': email,
+        'password': password,
+        'code': verificationCode,
+      }),
+    );
+    if (response.statusCode != 201) {
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
+    }
+  }
+
+  @override
+  Future<void> sendVerificationCode(String email) async {
+    final response = await client.post(
+      Uri.parse('$_baseUrl/send-code'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode != 200) {
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
+    }
+  }
 
   @override
   Future<UserModel> getUserProfile() async {
@@ -56,7 +86,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.statusCode == 200) {
       return UserModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
     } else {
-      throw Exception('Failed to get user profile');
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
     }
   }
 
@@ -77,19 +108,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.statusCode == 200) {
       return UserModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
     } else {
-      throw Exception('Failed to update profile');
+      final errorBody = jsonDecode(response.body);
+      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
     }
-  }
-
-  @override
-  Future<void> register(String email, String password, String verificationCode) {
-    // TODO: implement register
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> sendVerificationCode(String email) {
-    // TODO: implement sendVerificationCode
-    throw UnimplementedError();
   }
 }

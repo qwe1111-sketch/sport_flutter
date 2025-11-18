@@ -121,12 +121,8 @@ void main() async {
         RepositoryProvider.value(value: videoCacheManager),
         RepositoryProvider.value(value: getCommunityPostsUseCase),
         RepositoryProvider.value(value: createCommunityPostUseCase),
-        RepositoryProvider.value(value: getPostCommentsUseCase),
-        RepositoryProvider.value(value: createPostCommentUseCase),
-        RepositoryProvider.value(value: likePostCommentUseCase),
-        RepositoryProvider.value(value: dislikePostCommentUseCase),
-        RepositoryProvider.value(value: deletePostCommentUseCase),
-        RepositoryProvider.value(value: deleteCommunityPostUseCase),
+        RepositoryProvider.value(value: favoriteVideoUseCase),
+        RepositoryProvider.value(value: unfavoriteVideoUseCase),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -154,13 +150,13 @@ void main() async {
           BlocProvider(
             create: (context) => FavoritesBloc(getFavoriteVideos: getFavoriteVideosUseCase),
           ),
-		  BlocProvider(
-			create: (context) => CommunityBloc(
-				getCommunityPosts: getCommunityPostsUseCase,
-				createCommunityPost: createCommunityPostUseCase,
-				ossUploadService: ossUploadService,
-			),
-		  ),
+          BlocProvider(
+            create: (context) => CommunityBloc(
+              getCommunityPosts: getCommunityPostsUseCase,
+              createCommunityPost: createCommunityPostUseCase,
+              ossUploadService: ossUploadService,
+            ),
+          ),
           BlocProvider(
             create: (context) => PostCommentBloc(
               getPostComments: getPostCommentsUseCase,
@@ -208,7 +204,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
           navigatorObservers: [routeObserver],
-          home: LoginPage(),
+          home: const LoginPage(),
         );
       },
     );

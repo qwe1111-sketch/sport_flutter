@@ -49,6 +49,7 @@ class PostCommentRemoteDataSourceImpl implements PostCommentRemoteDataSource {
       'postId': postId,
       'content': content,
       if (parentCommentId != null) 'parentCommentId': parentCommentId,
+      'createdAt': DateTime.now().toUtc().toIso8601String(),
     };
     
     final response = await client.post(
@@ -59,7 +60,7 @@ class PostCommentRemoteDataSourceImpl implements PostCommentRemoteDataSource {
 
     if (response.statusCode != 201) {
       throw Exception('Failed to create comment. Status: ${response.statusCode}');
-    }
+    }git add .
   }
 
   @override

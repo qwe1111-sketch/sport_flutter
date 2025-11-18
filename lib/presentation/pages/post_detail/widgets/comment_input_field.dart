@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 
 class CommentInputField extends StatefulWidget {
@@ -66,6 +67,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isReplying = widget.replyingTo != null;
     return Container(
       padding: const EdgeInsets.all(12.0),
@@ -79,7 +81,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(
                   children: [
-                    Text('回复 @${widget.replyingTo!.username}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
+                    Text(l10n.replyingTo(widget.replyingTo!.username), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
                     const Spacer(),
                     GestureDetector(
                       onTap: () {
@@ -92,7 +94,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
                 ),
               ),
             Row(children: [
-              Expanded(child: TextField(focusNode: _focusNode, controller: _controller, decoration: InputDecoration.collapsed(hintText: isReplying ? '发送回复...' : '发表你的评论...'))),
+              Expanded(child: TextField(focusNode: _focusNode, controller: _controller, decoration: InputDecoration.collapsed(hintText: isReplying ? l10n.sendReply : l10n.postYourComment))),
               IconButton(icon: const Icon(Icons.send), onPressed: _submitComment)
             ]),
           ],

@@ -75,10 +75,12 @@ class CommentItem extends StatelessWidget {
   Widget _buildActionRow(BuildContext context, TextTheme textTheme, ColorScheme colorScheme) {
     final bloc = context.read<PostCommentBloc>();
     final voteStyle = textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold);
+    final localTime = comment.createdAt.toLocal();
+    final timeString = DateFormat('MM-dd HH:mm').format(localTime);
 
     return Row(
       children: [
-        Text(DateFormat('MM-dd HH:mm').format(comment.createdAt), style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
+        Text(timeString, style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
         const Spacer(),
 
         IconButton(icon: Icon(Icons.thumb_up_alt_outlined, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey), onPressed: () => bloc.add(LikeComment(comment.id))),

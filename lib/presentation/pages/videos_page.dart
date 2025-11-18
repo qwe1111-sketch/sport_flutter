@@ -9,6 +9,7 @@ import 'package:sport_flutter/domain/usecases/favorite_video.dart';
 import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/main.dart'; // For routeObserver
 import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
@@ -78,6 +79,7 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sport Videos'),
@@ -94,9 +96,9 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
               const SizedBox(height: 24),
               if (_didInit)
                 ...[
-                  _VideoSection(title: '简单', difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
-                  _VideoSection(title: '中度', difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
-                  _VideoSection(title: '困难', difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
+                  _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
+                  _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
+                  _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
                 ]
             ],
           ),

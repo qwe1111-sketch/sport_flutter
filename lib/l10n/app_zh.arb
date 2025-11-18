@@ -1,3 +1,4 @@
+
 {
     "@@locale": "zh",
     "myProfile": "我的",
@@ -12,5 +13,86 @@
     "cancel": "取消",
     "confirmLogout": "确认退出",
     "selectLanguage": "选择语言",
-    "usageDeclarationContent": "本使用声明旨在明确你使用本 App 时的权利与义务，保护双方合法权益。请你在下载、安装、注册或使用本 App 前，仔细阅读并充分理解本声明全部内容，一旦你开始使用本 App，即视为你已接受本声明的所有条款。若你不同意本声明，请勿使用本 App。"
+    "usageDeclarationContent": "本使用声明旨在明确你使用本 App 时的权利与义务，保护双方合法权益。请你在下载、安装、注册或使用本 App 前，仔细阅读并充分理解本声明全部内容，一旦你开始使用本 App，即视为你已接受本声明的所有条款。若你不同意本声明，请勿使用本 App。",
+    "videoViews": "{count} 次观看 • {date}",
+    "@videoViews": {
+        "description": "视频的观看次数",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "upNext": "即将播放",
+    "daysAgo": "{count} 天前",
+    "@daysAgo": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "hoursAgo": "{count} 小时前",
+    "@hoursAgo": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "justNow": "刚刚",
+    "dislike": "不喜欢",
+    "favorite": "收藏",
+    "tenThousand": "万",
+    "introduction": "简介",
+    "comments": "评论",
+    "home": "首页",
+    "community": "社区",
+    "profile": "我的",
+    "replyingTo": "回复 @{username}",
+    "@replyingTo": {
+        "placeholders": {
+            "username": {
+                "type": "String"
+            }
+        }
+    },
+    "sendReply": "发送回复",
+    "postYourComment": "发表你的评论",
+    "easy": "简单",
+    "medium": "中度",
+    "hard": "困难",
+    "login": "登录",
+    "email": "电子邮件",
+    "password": "密码",
+    "dontHaveAnAccount": "还没有帐户？ 注册",
+    "loginFailed": "登录失败：{message}",
+    "@loginFailed": {
+        "placeholders": {
+            "message": {
+                "type": "String"
+            }
+        }
+    },
+    "register": "注册",
+    "username": "用户名",
+    "enterUsername": "请输入用户名",
+    "enterValidEmail": "请输入有效的邮箱地址",
+    "passwordTooShort": "密码长度不能少于6位",
+    "verificationCode": "验证码",
+    "enterVerificationCode": "请输入验证码",
+    "sendVerificationCode": "发送验证码",
+    "agreement": "我已阅读并同意 ",
+    "userAgreement": "《App使用声明》",
+    "registrationSuccessful": "注册成功! 请登录",
+    "codeSent": "验证码已发送",
+    "invalidEmail": "请输入有效的邮箱地址",
+    "usernameOrPasswordCannotBeEmpty": "用户名或密码不能为空",
+    "invalidUsernameOrPassword": "用户名或密码错误",
+    "loginFailedTitle": "登录失败",
+    "ok": "好的",
+    "enterPassword": "请输入密码"
 }

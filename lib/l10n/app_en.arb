@@ -1,3 +1,4 @@
+
 {
     "@@locale": "en",
     "myProfile": "My Profile",
@@ -12,5 +13,86 @@
     "cancel": "Cancel",
     "confirmLogout": "Confirm Logout",
     "selectLanguage": "Select Language",
-    "usageDeclarationContent": "This usage declaration aims to clarify your rights and obligations when using this App and to protect the legal rights and interests of both parties. Please read and fully understand all the contents of this declaration before downloading, installing, registering, or using this App. Once you start using this App, you are deemed to have accepted all the terms of this declaration. If you do not agree with this declaration, please do not use this App."
+    "usageDeclarationContent": "This usage declaration aims to clarify your rights and obligations when using this App and to protect the legal rights and interests of both parties. Please read and fully understand all the contents of this declaration before downloading, installing, registering, or using this App. Once you start using this App, you are deemed to have accepted all the terms of this declaration. If you do not agree with this declaration, please do not use this App.",
+    "videoViews": "{count,plural, =0{No views} =1{1 view} other{{count} views}} • {date}",
+    "@videoViews": {
+        "description": "The number of views on a video",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "upNext": "Up Next",
+    "daysAgo": "{count,plural, =1{1 day ago} other{{count} days ago}}",
+    "@daysAgo": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "hoursAgo": "{count,plural, =1{1 hour ago} other{{count} hours ago}}",
+    "@hoursAgo": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "justNow": "Just now",
+    "dislike": "Dislike",
+    "favorite": "Favorite",
+    "tenThousand": "w",
+    "introduction": "Introduction",
+    "comments": "Comments",
+    "home": "Home",
+    "community": "Community",
+    "profile": "Profile",
+    "replyingTo": "Replying to @{username}",
+    "@replyingTo": {
+        "placeholders": {
+            "username": {
+                "type": "String"
+            }
+        }
+    },
+    "sendReply": "Send a reply",
+    "postYourComment": "Post your comment",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "dontHaveAnAccount": "Don't have an account? Register",
+    "loginFailed": "Login Failed: {message}",
+    "@loginFailed": {
+        "placeholders": {
+            "message": {
+                "type": "String"
+            }
+        }
+    },
+    "register": "Register",
+    "username": "Username",
+    "enterUsername": "Please enter a username",
+    "enterValidEmail": "Please enter a valid email address",
+    "passwordTooShort": "Password must be at least 6 characters long",
+    "verificationCode": "Verification Code",
+    "enterVerificationCode": "Please enter the verification code",
+    "sendVerificationCode": "Send Code",
+    "agreement": "I have read and agree to the ",
+    "userAgreement": "App Usage Declaration",
+    "registrationSuccessful": "Registration successful! Please log in",
+    "codeSent": "Verification code sent",
+    "invalidEmail": "Please enter a valid email address",
+    "usernameOrPasswordCannotBeEmpty": "Username or password cannot be empty",
+    "invalidUsernameOrPassword": "Invalid username or password",
+    "loginFailedTitle": "Login Failed",
+    "ok": "OK",
+    "enterPassword": "Please enter a password"
 }

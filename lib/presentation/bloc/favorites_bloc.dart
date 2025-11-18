@@ -37,6 +37,20 @@ abstract class FavoritesEvent extends Equatable {
 }
 
 class FetchFavorites extends FavoritesEvent {}
+
+class AddFavorite extends FavoritesEvent {
+  final Video video;
+  const AddFavorite(this.video);
+  @override
+  List<Object> get props => [video];
+}
+
+class RemoveFavorite extends FavoritesEvent {
+  final Video video;
+  const RemoveFavorite(this.video);
+  @override
+  List<Object> get props => [video];
+}
 // #endregion
 
 class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
@@ -44,6 +58,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
 
   FavoritesBloc({required this.getFavoriteVideos}) : super(FavoritesInitial()) {
     on<FetchFavorites>(_onFetchFavorites);
+    on<AddFavorite>(_onAddFavorite);
+    on<RemoveFavorite>(_onRemoveFavorite);
   }
 
   void _onFetchFavorites(FetchFavorites event, Emitter<FavoritesState> emit) async {
@@ -53,6 +69,24 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       emit(FavoritesLoaded(videos));
     } catch (e) {
       emit(FavoritesError(e.toString()));
+    }
+  }
+
+  void _onAddFavorite(AddFavorite event, Emitter<FavoritesState> emit) {
+    final state = this.state;
+    if (state is FavoritesLoaded) {
+      // Avoid adding duplicates
+      if (!state.videos.any((v) => v.id == event.video.id)) {
+        emit(FavoritesLoaded(List.from(state.videos)..add(event.video)));
+      }
+    }
+  }
+
+  void _onRemoveFavorite(RemoveFavorite event, Emitter<FavoritesState> emit) {
+    final state = this.state;
+    if (state is FavoritesLoaded) {
+      emit(FavoritesLoaded(
+          state.videos.where((video) => video.id != event.video.id).toList()));
     }
   }
 }

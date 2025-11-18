@@ -60,11 +60,11 @@ class RegisterEvent extends AuthEvent {
 }
 
 class LoginEvent extends AuthEvent {
-  final String email;
+  final String username;
   final String password;
-  const LoginEvent(this.email, this.password);
+  const LoginEvent(this.username, this.password);
   @override
-  List<Object?> get props => [email, password];
+  List<Object?> get props => [username, password];
 }
 
 class LogoutEvent extends AuthEvent {}
@@ -108,30 +108,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await sendCodeUseCase(event.email);
       emit(AuthCodeSent());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
     }
   }
 
   void _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await registerUseCase(event.email, event.password, event.code);
+      await registerUseCase(event.username, event.email, event.password, event.code);
       emit(AuthRegistrationSuccess());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
     }
   }
 
   void _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final token = await loginUseCase(event.email, event.password);
+      final token = await loginUseCase(event.username, event.password);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_token', token);
       final user = await getUserProfileUseCase();
       emit(AuthAuthenticated(user: user));
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
     }
   }
 
@@ -151,7 +151,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthAuthenticated(user: updatedUser));
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
     }
   }
 }

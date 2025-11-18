@@ -148,12 +148,13 @@ class _CommentItem extends StatelessWidget {
   }
 
   Widget _buildCommentActions(BuildContext context) {
+    final localTime = comment.createdAt.toLocal();
     return Row(
       children: [
         Expanded(
           child: Row(
             children: [
-              Text(DateFormat('MM-dd').format(comment.createdAt), style: Theme.of(context).textTheme.bodySmall, overflow: TextOverflow.ellipsis),
+              Text(DateFormat('MM-dd HH:mm').format(localTime), style: Theme.of(context).textTheme.bodySmall, overflow: TextOverflow.ellipsis),
               const SizedBox(width: 16),
               // Show reply button if it has no replies OR if it is the header of the sheet.
               if (comment.replyCount == 0 || isSheetHeader)

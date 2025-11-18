@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/widgets/video_action_buttons.dart';
 
 class VideoIntroPanel extends StatelessWidget {
@@ -33,6 +34,7 @@ class VideoIntroPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
@@ -46,7 +48,7 @@ class VideoIntroPanel extends StatelessWidget {
                 Text(currentVideo.title, style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 8),
                 Text(
-                  '${_formatNumber(currentVideo.viewCount)}次观看 - ${_formatDate(currentVideo.createdAt)}',
+                  l10n.videoViews(currentVideo.viewCount, _formatDate(context, currentVideo.createdAt)),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                 ),
                 const SizedBox(height: 16),
@@ -62,7 +64,7 @@ class VideoIntroPanel extends StatelessWidget {
                   onShare: onShare,
                 ),
                 const Divider(height: 32),
-                const Text('接下来播放', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(l10n.upNext, style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -84,7 +86,7 @@ class VideoIntroPanel extends StatelessWidget {
   Widget _buildAuthorInfo(BuildContext context) {
     return Row(
       children: [
-        const CircleAvatar(child: Icon(Icons.person)),
+        CircleAvatar(child: const Icon(Icons.person)),
         const SizedBox(width: 12),
         Expanded(child: Text(currentVideo.authorName, style: Theme.of(context).textTheme.titleMedium)),
         const SizedBox.shrink(),
@@ -140,12 +142,11 @@ class VideoIntroPanel extends StatelessWidget {
     );
   }
 
-  String _formatNumber(int n) => (n >= 10000) ? '${(n / 10000).toStringAsFixed(1)}万' : n.toString();
-
-  String _formatDate(DateTime d) {
+  String _formatDate(BuildContext context, DateTime d) {
+    final l10n = AppLocalizations.of(context)!;
     final diff = DateTime.now().difference(d);
-    if (diff.inDays > 1) return '${diff.inDays}天前';
-    if (diff.inHours > 1) return '${diff.inHours}小时前';
-    return '刚刚';
+    if (diff.inDays > 1) return l10n.daysAgo(diff.inDays);
+    if (diff.inHours > 1) return l10n.hoursAgo(diff.inHours);
+    return l10n.justNow;
   }
 }

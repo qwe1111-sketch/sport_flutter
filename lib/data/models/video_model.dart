@@ -13,7 +13,7 @@ class VideoModel extends Video {
     required super.isFavorited, // Added to constructor
   });
 
-  // This factory constructor is now updated to correctly parse the is_favorited field.
+  // This factory constructor is now updated to correctly parse the isFavorited field.
   factory VideoModel.fromJson(Map<String, dynamic> json) {
     return VideoModel(
       id: json['id'] ?? 0,
@@ -24,7 +24,7 @@ class VideoModel extends Video {
       viewCount: json['view_count'] ?? 0,
       likeCount: json['like_count'] ?? 0,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
-      isFavorited: json['is_favorited'] ?? false, // Correctly parse the field
+      isFavorited: json['isFavorited'] ?? false, // Correctly parse the field
     );
   }
 }
