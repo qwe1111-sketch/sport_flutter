@@ -120,7 +120,14 @@ class _CommentItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CircleAvatar(child: Icon(Icons.person_outline)),
+          CircleAvatar(
+            backgroundImage: comment.userAvatarUrl != null && comment.userAvatarUrl!.isNotEmpty
+                ? NetworkImage(comment.userAvatarUrl!)
+                : null,
+            child: comment.userAvatarUrl == null || comment.userAvatarUrl!.isEmpty
+                ? const Icon(Icons.person_outline)
+                : null,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

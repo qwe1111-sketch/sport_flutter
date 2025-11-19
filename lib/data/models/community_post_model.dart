@@ -4,6 +4,7 @@ class CommunityPostModel extends CommunityPost {
   const CommunityPostModel({
     required int id,
     required String username,
+    String? userAvatarUrl,
     required String title,
     required String content,
     required DateTime createdAt,
@@ -15,6 +16,7 @@ class CommunityPostModel extends CommunityPost {
   }) : super(
           id: id,
           username: username,
+          userAvatarUrl: userAvatarUrl,
           title: title,
           content: content,
           createdAt: createdAt,
@@ -29,6 +31,7 @@ class CommunityPostModel extends CommunityPost {
     return CommunityPostModel(
       id: json['id'] as int,
       username: json['username'] as String,
+      userAvatarUrl: json['userAvatarUrl'] as String?,
       title: json['title'] as String,
       content: json['content'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -44,6 +47,7 @@ class CommunityPostModel extends CommunityPost {
     return {
       'id': id,
       'username': username,
+      'userAvatarUrl': userAvatarUrl,
       'title': title,
       'content': content,
       'createdAt': createdAt.toIso8601String(),

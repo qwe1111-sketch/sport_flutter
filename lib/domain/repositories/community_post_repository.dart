@@ -4,6 +4,6 @@ import 'package:sport_flutter/domain/entities/community_post.dart';
 abstract class CommunityPostRepository {
   Future<List<CommunityPost>> getPosts();
   Future<List<CommunityPost>> getMyPosts(); // New method
-  Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl);
+  Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl, String? userAvatarUrl);
   Future<void> deletePost(int postId);
 }

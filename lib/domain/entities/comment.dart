@@ -5,6 +5,7 @@ class Comment extends Equatable {
   final int? parentCommentId;
   final String content;
   final String username;
+  final String? userAvatarUrl;
   final int likeCount;
   final int dislikeCount;
   final DateTime createdAt;
@@ -17,6 +18,7 @@ class Comment extends Equatable {
     this.parentCommentId,
     required this.content,
     required this.username,
+    this.userAvatarUrl,
     required this.likeCount,
     required this.dislikeCount,
     required this.createdAt,
@@ -30,6 +32,7 @@ class Comment extends Equatable {
     int? parentCommentId,
     String? content,
     String? username,
+    String? userAvatarUrl,
     int? likeCount,
     int? dislikeCount,
     DateTime? createdAt,
@@ -43,6 +46,7 @@ class Comment extends Equatable {
       parentCommentId: parentCommentId ?? this.parentCommentId,
       content: content ?? this.content,
       username: username ?? this.username,
+      userAvatarUrl: userAvatarUrl ?? this.userAvatarUrl,
       likeCount: likeCount ?? this.likeCount,
       dislikeCount: dislikeCount ?? this.dislikeCount,
       createdAt: createdAt ?? this.createdAt,
@@ -53,5 +57,5 @@ class Comment extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, parentCommentId, content, username, likeCount, dislikeCount, createdAt, replies, replyCount, userVote];
+  List<Object?> get props => [id, parentCommentId, content, username, userAvatarUrl, likeCount, dislikeCount, createdAt, replies, replyCount, userVote];
 }

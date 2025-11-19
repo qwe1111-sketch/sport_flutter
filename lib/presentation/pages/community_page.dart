@@ -180,7 +180,7 @@ class _PostItemState extends State<_PostItem> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [const CircleAvatar(radius: 12, child: Icon(Icons.person, size: 14)), const SizedBox(width: 8), Text(widget.post.username, style: Theme.of(context).textTheme.bodySmall)]),
+            Row(children: [CircleAvatar(radius: 12, backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty ? NetworkImage(widget.post.userAvatarUrl!) : null, child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty ? const Icon(Icons.person, size: 14) : null,), const SizedBox(width: 8), Text(widget.post.username, style: Theme.of(context).textTheme.bodySmall)]),
             const SizedBox(height: 8),
             Text(widget.post.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),

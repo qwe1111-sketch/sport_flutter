@@ -9,6 +9,7 @@ class PostComment extends Equatable {
   final int? parentCommentId;
   final String content;
   final String username;
+  final String? userAvatarUrl;
   final int likeCount;
   final int dislikeCount;
   final DateTime createdAt;
@@ -21,6 +22,7 @@ class PostComment extends Equatable {
     this.parentCommentId,
     required this.content,
     required this.username,
+    this.userAvatarUrl,
     required this.likeCount,
     required this.dislikeCount,
     required this.createdAt,
@@ -34,6 +36,7 @@ class PostComment extends Equatable {
     int? parentCommentId,
     String? content,
     String? username,
+    String? userAvatarUrl,
     int? likeCount,
     int? dislikeCount,
     DateTime? createdAt,
@@ -47,6 +50,7 @@ class PostComment extends Equatable {
       parentCommentId: parentCommentId ?? this.parentCommentId,
       content: content ?? this.content,
       username: username ?? this.username,
+      userAvatarUrl: userAvatarUrl ?? this.userAvatarUrl,
       likeCount: likeCount ?? this.likeCount,
       dislikeCount: dislikeCount ?? this.dislikeCount,
       createdAt: createdAt ?? this.createdAt,
@@ -62,6 +66,7 @@ class PostComment extends Equatable {
         parentCommentId,
         content,
         username,
+        userAvatarUrl,
         likeCount,
         dislikeCount,
         createdAt,

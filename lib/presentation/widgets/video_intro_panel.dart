@@ -86,7 +86,14 @@ class VideoIntroPanel extends StatelessWidget {
   Widget _buildAuthorInfo(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(child: const Icon(Icons.person)),
+        CircleAvatar(
+          backgroundImage: currentVideo.userAvatarUrl != null && currentVideo.userAvatarUrl!.isNotEmpty
+              ? NetworkImage(currentVideo.userAvatarUrl!)
+              : null,
+          child: currentVideo.userAvatarUrl == null || currentVideo.userAvatarUrl!.isEmpty
+              ? const Icon(Icons.person)
+              : null,
+        ),
         const SizedBox(width: 12),
         Expanded(child: Text(currentVideo.authorName, style: Theme.of(context).textTheme.titleMedium)),
         const SizedBox.shrink(),

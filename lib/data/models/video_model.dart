@@ -7,10 +7,11 @@ class VideoModel extends Video {
     required super.videoUrl,
     required super.thumbnailUrl,
     required super.authorName,
+    super.userAvatarUrl,
     required super.viewCount,
     required super.likeCount,
     required super.createdAt,
-    required super.isFavorited, // Added to constructor
+    required super.isFavorited,
   });
 
   // This factory constructor is now updated to correctly parse the isFavorited field.
@@ -21,6 +22,7 @@ class VideoModel extends Video {
       videoUrl: json['video_url'] ?? '',
       thumbnailUrl: json['thumbnail_url'] ?? '',
       authorName: json['author_name'] ?? 'Unknown Author',
+      userAvatarUrl: json['userAvatarUrl'],
       viewCount: json['view_count'] ?? 0,
       likeCount: json['like_count'] ?? 0,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),

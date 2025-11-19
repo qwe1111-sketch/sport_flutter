@@ -43,7 +43,15 @@ class CommentItem extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(radius: 16, child: Icon(Icons.person, size: 16)),
+              CircleAvatar(
+                radius: 16,
+                backgroundImage: comment.userAvatarUrl != null && comment.userAvatarUrl!.isNotEmpty
+                    ? NetworkImage(comment.userAvatarUrl!)
+                    : null,
+                child: comment.userAvatarUrl == null || comment.userAvatarUrl!.isEmpty
+                    ? const Icon(Icons.person, size: 16)
+                    : null,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -93,7 +101,8 @@ class CommentItem extends StatelessWidget {
 
         IconButton(icon: const Icon(Icons.reply, size: 16, color: Colors.grey), onPressed: () => onReplyTapped(comment)),
 
-        if (comment.username == 'wyy') // Placeholder for ownership check
+        // TODO: Replace with actual ownership check from a user service or similar
+        if (comment.username == 'wyy') 
           IconButton(icon: const Icon(Icons.delete_outline, size: 16, color: Colors.grey), onPressed: () => bloc.add(DeleteComment(comment.id))),
       ],
     );

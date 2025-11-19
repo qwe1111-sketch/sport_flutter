@@ -18,8 +18,8 @@ class CommunityPostRepositoryImpl implements CommunityPostRepository {
   }
 
   @override
-  Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl) async {
-    return await remoteDataSource.createPost(title, content, imageUrl, videoUrl);
+  Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl, String? userAvatarUrl) async {
+    return await remoteDataSource.createPost(title, content, imageUrl, videoUrl, userAvatarUrl);
   }
 
   @override

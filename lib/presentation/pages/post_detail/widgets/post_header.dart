@@ -70,7 +70,7 @@ class _PostHeaderState extends State<PostHeader> {
   }
 
   Widget _buildAuthorInfo(BuildContext context) {
-    return Row(children: [const CircleAvatar(radius: 20, child: Icon(Icons.person)), const SizedBox(width: 12), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(widget.post.username, style: Theme.of(context).textTheme.titleMedium), Text(DateFormat('yyyy-MM-dd HH:mm').format(widget.post.createdAt), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey))])]);
+    return Row(children: [CircleAvatar(radius: 20, backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty ? NetworkImage(widget.post.userAvatarUrl!) : null, child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty ? const Icon(Icons.person) : null), const SizedBox(width: 12), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(widget.post.username, style: Theme.of(context).textTheme.titleMedium), Text(DateFormat('yyyy-MM-dd HH:mm').format(widget.post.createdAt), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey))])]);
   }
 
   Widget _buildPostContent(BuildContext context) {

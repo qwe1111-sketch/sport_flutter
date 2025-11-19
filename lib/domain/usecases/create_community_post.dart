@@ -10,6 +10,7 @@ class CreateCommunityPost {
     required String content,
     String? imageUrl,
     String? videoUrl,
+    String? userAvatarUrl,
   }) {
     // This use case now correctly calls the repository with positional arguments
     // and returns a Future<void> to match the repository's contract.
@@ -18,6 +19,7 @@ class CreateCommunityPost {
       content,
       imageUrl,
       videoUrl,
+      userAvatarUrl,
     );
   }
 }

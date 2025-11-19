@@ -7,6 +7,7 @@ class PostCommentModel {
   final int? parentCommentId;
   final String content;
   final String username;
+  final String? userAvatarUrl;
   final int likeCount;
   final int dislikeCount;
   final DateTime createdAt;
@@ -19,6 +20,7 @@ class PostCommentModel {
     this.parentCommentId,
     required this.content,
     required this.username,
+    this.userAvatarUrl,
     required this.likeCount,
     required this.dislikeCount,
     required this.createdAt,
@@ -38,6 +40,7 @@ class PostCommentModel {
       parentCommentId: json['parentCommentId'] as int?,
       content: json['content'] as String,
       username: json['username'] as String,
+      userAvatarUrl: json['userAvatarUrl'] as String?,
       likeCount: json['likeCount'] as int? ?? 0,
       dislikeCount: json['dislikeCount'] as int? ?? 0,
       createdAt: DateTime.parse(createdAtString), // Keep as UTC
@@ -56,6 +59,7 @@ class PostCommentModel {
       parentCommentId: parentCommentId,
       content: content,
       username: username,
+      userAvatarUrl: userAvatarUrl,
       likeCount: likeCount,
       dislikeCount: dislikeCount,
       createdAt: createdAt,

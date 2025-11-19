@@ -119,6 +119,7 @@ void main() async {
         RepositoryProvider.value(value: postCommentRepository),
         RepositoryProvider.value(value: ossUploadService),
         RepositoryProvider.value(value: videoCacheManager),
+        RepositoryProvider.value(value: getVideosUseCase),
         RepositoryProvider.value(value: getCommunityPostsUseCase),
         RepositoryProvider.value(value: createCommunityPostUseCase),
         RepositoryProvider.value(value: favoriteVideoUseCase),
@@ -196,11 +197,12 @@ class MyApp extends StatelessWidget {
           ],
           theme: ThemeData(
             primarySwatch: Colors.blue,
-            brightness: Brightness.dark,
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: Colors.white,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             textTheme: const TextTheme(
-              bodyMedium: TextStyle(color: Colors.white),
-              bodySmall: TextStyle(color: Colors.white70),
+              bodyMedium: TextStyle(color: Colors.black87),
+              bodySmall: TextStyle(color: Colors.black54),
             ),
           ),
           navigatorObservers: [routeObserver],

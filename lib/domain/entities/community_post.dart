@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 class CommunityPost extends Equatable {
   final int id;
   final String username;
+  final String? userAvatarUrl;
   final String title;
   final String content;
   final DateTime createdAt;
@@ -16,6 +17,7 @@ class CommunityPost extends Equatable {
   const CommunityPost({
     required this.id,
     required this.username,
+    this.userAvatarUrl,
     required this.title,
     required this.content,
     required this.createdAt,
@@ -31,6 +33,7 @@ class CommunityPost extends Equatable {
   List<Object?> get props => [
         id,
         username,
+        userAvatarUrl,
         title,
         content,
         createdAt,

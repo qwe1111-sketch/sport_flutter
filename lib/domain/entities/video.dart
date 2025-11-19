@@ -6,6 +6,7 @@ class Video extends Equatable {
   final String videoUrl;
   final String thumbnailUrl;
   final String authorName;
+  final String? userAvatarUrl;
   final int viewCount;
   final int likeCount;
   final DateTime createdAt;
@@ -17,6 +18,7 @@ class Video extends Equatable {
     required this.videoUrl,
     required this.thumbnailUrl,
     required this.authorName,
+    this.userAvatarUrl,
     required this.viewCount,
     required this.likeCount,
     required this.createdAt,
@@ -29,6 +31,7 @@ class Video extends Equatable {
     String? videoUrl,
     String? thumbnailUrl,
     String? authorName,
+    String? userAvatarUrl,
     int? viewCount,
     int? likeCount,
     DateTime? createdAt,
@@ -40,6 +43,7 @@ class Video extends Equatable {
       videoUrl: videoUrl ?? this.videoUrl,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       authorName: authorName ?? this.authorName,
+      userAvatarUrl: userAvatarUrl ?? this.userAvatarUrl,
       viewCount: viewCount ?? this.viewCount,
       likeCount: likeCount ?? this.likeCount,
       createdAt: createdAt ?? this.createdAt,
@@ -48,5 +52,5 @@ class Video extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, title, videoUrl, thumbnailUrl, authorName, viewCount, likeCount, createdAt, isFavorited];
+  List<Object?> get props => [id, title, videoUrl, thumbnailUrl, authorName, userAvatarUrl, viewCount, likeCount, createdAt, isFavorited];
 }
