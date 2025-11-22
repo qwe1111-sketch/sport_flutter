@@ -14,7 +14,7 @@ class CreatePostPage extends StatefulWidget {
 class _CreatePostPageState extends State<CreatePostPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  File? _selectedFile;
+  final List<File> _selectedFiles = [];
 
   @override
   void initState() {
@@ -30,15 +30,20 @@ class _CreatePostPageState extends State<CreatePostPage> {
     super.dispose();
   }
 
-  Future<void> _pickMedia(ImageSource source, {bool isVideo = false}) async {
-    final picker = ImagePicker();
-    final pickedFile = isVideo
-        ? await picker.pickVideo(source: source)
-        : await picker.pickImage(source: source);
+  Future<void> _pickMedia() async {
+    if (_selectedFiles.length >= 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('最多只能选择6个文件')),
+      );
+      return;
+    }
 
-    if (pickedFile != null) {
+    final picker = ImagePicker();
+    final pickedFiles = await picker.pickMultipleMedia(limit: 6 - _selectedFiles.length);
+
+    if (pickedFiles.isNotEmpty) {
       setState(() {
-        _selectedFile = File(pickedFile.path);
+        _selectedFiles.addAll(pickedFiles.map((file) => File(file.path)));
       });
     }
   }
@@ -63,12 +68,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ElevatedButton(
-                    onPressed: canPost && !isSubmitting 
+                    onPressed: canPost && !isSubmitting
                         ? () {
                             context.read<CommunityBloc>().add(AddPost(
                                   title: _titleController.text,
                                   content: _contentController.text,
-                                  mediaFile: _selectedFile,
+                                  mediaFiles: _selectedFiles,
                                 ));
                           }
                         : null,
@@ -107,15 +112,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 maxLines: 10,
               ),
               const SizedBox(height: 16),
-              _buildMediaPreview(),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  IconButton(icon: const Icon(Icons.photo_library_outlined, size: 28), onPressed: () => _pickMedia(ImageSource.gallery)),
-                  const SizedBox(width: 16),
-                  IconButton(icon: const Icon(Icons.videocam_outlined, size: 28), onPressed: () => _pickMedia(ImageSource.gallery, isVideo: true)),
-                ],
-              ),
+              _buildMediaGrid(),
             ],
           ),
         ),
@@ -123,25 +120,43 @@ class _CreatePostPageState extends State<CreatePostPage> {
     );
   }
 
-  Widget _buildMediaPreview() {
-    if (_selectedFile == null) return const SizedBox.shrink();
+  Widget _buildMediaGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: _selectedFiles.length + (_selectedFiles.length < 6 ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == _selectedFiles.length && _selectedFiles.length < 6) {
+          return GestureDetector(
+            onTap: _pickMedia,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.add_a_photo_outlined, size: 48, color: Colors.black54),
+            ),
+          );
+        }
 
-    final isImage = ['.jpg', '.jpeg', '.png', '.gif'].any((ext) => _selectedFile!.path.toLowerCase().endsWith(ext));
+        final file = _selectedFiles[index];
+        final isImage = ['.jpg', '.jpeg', '.png', '.gif'].any((ext) => file.path.toLowerCase().endsWith(ext));
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Stack(
+        return Stack(
           alignment: Alignment.topRight,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Container(
-                width: 100,
-                height: 100,
+                width: double.infinity,
+                height: double.infinity,
                 child: isImage
-                    ? Image.file(_selectedFile!, fit: BoxFit.cover)
+                    ? Image.file(file, fit: BoxFit.cover)
                     : Container(
                         color: Colors.black,
                         alignment: Alignment.center,
@@ -153,11 +168,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               icon: const CircleAvatar(radius: 12, backgroundColor: Colors.black54, child: Icon(Icons.close, color: Colors.white, size: 16)),
-              onPressed: () => setState(() => _selectedFile = null),
+              onPressed: () {
+                setState(() {
+                  _selectedFiles.removeAt(index);
+                });
+              },
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -8,17 +8,15 @@ class CreateCommunityPost {
   Future<void> call({
     required String title,
     required String content,
-    String? imageUrl,
-    String? videoUrl,
+    List<String>? imageUrls,
+    List<String>? videoUrls,
     String? userAvatarUrl,
   }) {
-    // This use case now correctly calls the repository with positional arguments
-    // and returns a Future<void> to match the repository's contract.
     return repository.createPost(
       title,
       content,
-      imageUrl,
-      videoUrl,
+      imageUrls,
+      videoUrls,
       userAvatarUrl,
     );
   }

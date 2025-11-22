@@ -7,7 +7,7 @@ import 'package:sport_flutter/data/datasources/auth_remote_data_source.dart';
 abstract class CommunityRemoteDataSource {
   Future<List<CommunityPostModel>> getPosts();
   Future<List<CommunityPostModel>> getMyPosts(); // New method
-  Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl, String? userAvatarUrl);
+  Future<void> createPost(String title, String content, List<String>? imageUrls, List<String>? videoUrls, String? userAvatarUrl);
   Future<void> deletePost(int postId);
   Future<Map<String, dynamic>> favoritePost(int postId);
   Future<Map<String, dynamic>> dislikePost(int postId);
@@ -63,13 +63,13 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   }
 
   @override
-  Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl, String? userAvatarUrl) async {
+  Future<void> createPost(String title, String content, List<String>? imageUrls, List<String>? videoUrls, String? userAvatarUrl) async {
     final headers = await _getAuthHeaders();
     final body = {
       'title': title,
       'content': content,
-      if (imageUrl != null) 'imageUrl': imageUrl,
-      if (videoUrl != null) 'videoUrl': videoUrl,
+      if (imageUrls != null && imageUrls.isNotEmpty) 'imageUrls': imageUrls,
+      if (videoUrls != null && videoUrls.isNotEmpty) 'videoUrls': videoUrls,
       if (userAvatarUrl != null) 'userAvatarUrl': userAvatarUrl,
     };
     

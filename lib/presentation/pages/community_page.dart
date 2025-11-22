@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sport_flutter/presentation/bloc/community_bloc.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/presentation/pages/create_post_page.dart';
@@ -18,7 +19,6 @@ class _CommunityPageState extends State<CommunityPage> {
   @override
   void initState() {
     super.initState();
-    // Dispatch an event to fetch posts when the page is first loaded
     context.read<CommunityBloc>().add(FetchPosts());
   }
 
@@ -113,8 +113,8 @@ class _PostItemState extends State<_PostItem> {
   @override
   void initState() {
     super.initState();
-    if (widget.post.videoUrl != null && widget.post.videoUrl!.isNotEmpty) {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.post.videoUrl!));
+    if (widget.post.videoUrls.isNotEmpty) {
+      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.post.videoUrls.first));
       _initializeVideoPlayerFuture = _controller!.initialize()..then((_) {
         if (mounted) setState(() {});
       });
@@ -186,8 +186,29 @@ class _PostItemState extends State<_PostItem> {
             Text(widget.post.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(widget.post.content, maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600)),
-            if (widget.post.imageUrl != null) Padding(padding: const EdgeInsets.only(top: 12.0), child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.network(widget.post.imageUrl!, height: 150, width: double.infinity, fit: BoxFit.cover))),
-            if (widget.post.videoUrl != null) Padding(padding: const EdgeInsets.only(top: 12.0), child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: _buildVideoPlayer())),
+            if (widget.post.imageUrls.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: CachedNetworkImage(
+                      imageUrl: widget.post.imageUrls.first,
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(color: Colors.grey.shade200),
+                      errorWidget: (context, url, error) => Container(color: Colors.grey.shade200, child: const Icon(Icons.error, color: Colors.grey)),
+                  ),
+                ),
+              ),
+            if (widget.post.videoUrls.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: _buildVideoPlayer(),
+                ),
+              ),
             const SizedBox(height: 12),
             Row(children: [if (widget.post.tags?.isNotEmpty ?? false) Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text(widget.post.tags!.first, style: TextStyle(color: Colors.blue.shade700, fontSize: 10)))]),
           ],

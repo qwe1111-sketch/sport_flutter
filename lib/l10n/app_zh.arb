@@ -88,6 +88,7 @@
     "sendVerificationCode": "发送验证码",
     "agreement": "我已阅读并同意 ",
     "userAgreement": "《App使用声明》",
+    "privacyPolicy": "隐私政策",
     "registrationSuccessful": "注册成功! 请登录",
     "codeSent": "验证码已发送",
     "invalidEmail": "请输入有效的邮箱地址",

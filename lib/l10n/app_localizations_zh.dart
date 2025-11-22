@@ -164,6 +164,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get userAgreement => '《App使用声明》';
 
   @override
+  String get privacyPolicy => '隐私政策';
+
+  @override
   String get registrationSuccessful => '注册成功! 请登录';
 
   @override

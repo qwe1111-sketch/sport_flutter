@@ -18,16 +18,16 @@ class FetchPosts extends CommunityEvent {}
 class AddPost extends CommunityEvent {
   final String title;
   final String content;
-  final File? mediaFile; // Optional file to upload
+  final List<File> mediaFiles; // Changed from single file
 
   const AddPost({
     required this.title,
     required this.content,
-    this.mediaFile,
+    this.mediaFiles = const [], // Default to empty list
   });
 
   @override
-  List<Object?> get props => [title, content, mediaFile];
+  List<Object?> get props => [title, content, mediaFiles];
 }
 
 // --- States ---
@@ -75,7 +75,6 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   Future<void> _onFetchPosts(FetchPosts event, Emitter<CommunityState> emit) async {
     final isInitialLoad = state is! CommunityLoaded;
 
-    // Only show the full-screen loading shimmer on the initial load.
     if (isInitialLoad) {
       emit(CommunityLoading());
     }
@@ -84,41 +83,39 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       final posts = await getCommunityPosts();
       emit(CommunityLoaded(posts));
     } catch (e) {
-      // If the refresh fails, we can choose to just log it and keep the old data.
-      // If the initial load fails, we must show an error screen.
       if (isInitialLoad) {
         emit(CommunityError('Failed to fetch posts: ${e.toString()}'));
       } else {
-        // For a refresh failure, we might not want to disrupt the user with a full error screen.
-        // We can just print to the console. The user still sees their (stale) data.
         print('Silent refresh failed: ${e.toString()}');
       }
     }
   }
 
   Future<void> _onAddPost(AddPost event, Emitter<CommunityState> emit) async {
-    // Indicate that posting is in progress.
-    emit(CommunityLoading()); 
+    emit(CommunityLoading());
 
     try {
-      String? imageUrl;
-      String? videoUrl;
+      final List<String> imageUrls = [];
+      final List<String> videoUrls = [];
 
-      if (event.mediaFile != null) {
-        final uploadedUrl = await ossUploadService.uploadFile(event.mediaFile!);
-        final extension = event.mediaFile!.path.split('.').last.toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
-          imageUrl = uploadedUrl;
-        } else {
-          videoUrl = uploadedUrl;
-        }
+      // Upload all files in parallel and collect their URLs
+      if (event.mediaFiles.isNotEmpty) {
+        await Future.wait(event.mediaFiles.map((file) async {
+          final uploadedUrl = await ossUploadService.uploadFile(file);
+          final extension = file.path.split('.').last.toLowerCase();
+          if (['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
+            imageUrls.add(uploadedUrl);
+          } else {
+            videoUrls.add(uploadedUrl);
+          }
+        }));
       }
 
       await createCommunityPost(
         title: event.title,
         content: event.content,
-        imageUrl: imageUrl,
-        videoUrl: videoUrl,
+        imageUrls: imageUrls,
+        videoUrls: videoUrls,
       );
       
       emit(CommunityPostSuccess());

@@ -7,8 +7,8 @@ class CommunityPost extends Equatable {
   final String title;
   final String content;
   final DateTime createdAt;
-  final String? imageUrl; // Optional: URL for an image
-  final String? videoUrl; // Optional: URL for a video
+  final List<String> imageUrls; // Changed from single URL
+  final List<String> videoUrls; // Changed from single URL
   final int commentCount;
   final int likeCount;
   final int dislikeCount; // Added this field
@@ -21,8 +21,8 @@ class CommunityPost extends Equatable {
     required this.title,
     required this.content,
     required this.createdAt,
-    this.imageUrl,
-    this.videoUrl,
+    this.imageUrls = const [], // Default to empty list
+    this.videoUrls = const [], // Default to empty list
     this.commentCount = 0,
     this.likeCount = 0,
     this.dislikeCount = 0, // Default to 0
@@ -37,8 +37,8 @@ class CommunityPost extends Equatable {
         title,
         content,
         createdAt,
-        imageUrl,
-        videoUrl,
+        imageUrls,
+        videoUrls,
         commentCount,
         likeCount,
         dislikeCount, // Added to props

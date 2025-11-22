@@ -88,6 +88,7 @@
     "sendVerificationCode": "Send Code",
     "agreement": "I have read and agree to the ",
     "userAgreement": "App Usage Declaration",
+    "privacyPolicy": "Privacy Policy",
     "registrationSuccessful": "Registration successful! Please log in",
     "codeSent": "Verification code sent",
     "invalidEmail": "Please enter a valid email address",

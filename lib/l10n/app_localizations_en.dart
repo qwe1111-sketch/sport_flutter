@@ -183,6 +183,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userAgreement => 'App Usage Declaration';
 
   @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
   String get registrationSuccessful => 'Registration successful! Please log in';
 
   @override

@@ -7,6 +7,7 @@ import 'package:sport_flutter/presentation/pages/edit_profile_page.dart';
 import 'package:sport_flutter/presentation/pages/favorites_page.dart';
 import 'package:sport_flutter/presentation/pages/login_page.dart';
 import 'package:sport_flutter/presentation/pages/my_posts_page.dart';
+import 'package:sport_flutter/presentation/pages/privacy_policy_page.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -46,9 +47,13 @@ class ProfilePage extends StatelessWidget {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Iconsax.information),
-                  title: Text(l10n.appUsageDeclaration),
+                  title: Text(l10n.privacyPolicy),
                   trailing: const Icon(Iconsax.arrow_right_3),
-                  onTap: () => _showDeclarationDialog(context, l10n),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const PrivacyPolicyPage(),
+                    ));
+                  },
                 ),
                 const Divider(),
                 _buildLogoutButton(context, l10n),
@@ -58,26 +63,6 @@ class ProfilePage extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         },
       ),
-    );
-  }
-
-  void _showDeclarationDialog(BuildContext context, AppLocalizations l10n) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.appUsageDeclaration),
-          content: SingleChildScrollView(
-            child: Text(l10n.usageDeclarationContent),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.close),
-            ),
-          ],
-        );
-      },
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
+import 'package:sport_flutter/presentation/pages/privacy_policy_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -157,27 +158,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             children: <TextSpan>[
                               TextSpan(text: l10n.agreement),
                               TextSpan(
-                                text: l10n.userAgreement,
+                                text: l10n.privacyPolicy, // Changed from userAgreement
                                 style: TextStyle(color: Theme.of(context).colorScheme.primary),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text(l10n.appUsageDeclaration),
-                                          content: SingleChildScrollView(
-                                            child: Text(l10n.usageDeclarationContent),
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(),
-                                              child: Text(l10n.close),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => const PrivacyPolicyPage(),
+                                    ));
                                   },
                               ),
                             ],

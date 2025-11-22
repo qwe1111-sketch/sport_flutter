@@ -386,6 +386,12 @@ abstract class AppLocalizations {
   /// **'App Usage Declaration'**
   String get userAgreement;
 
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
   /// No description provided for @registrationSuccessful.
   ///
   /// In en, this message translates to:
