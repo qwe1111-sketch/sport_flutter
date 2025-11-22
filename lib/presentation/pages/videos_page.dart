@@ -6,7 +6,6 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
-import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
@@ -14,7 +13,7 @@ import 'package:sport_flutter/main.dart'; // For routeObserver
 import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_event.dart';
-import 'package:sport_flutter/presentation/bloc/video_state.dart'; // Added missing import
+import 'package:sport_flutter/presentation/bloc/video_state.dart';
 import 'package:sport_flutter/presentation/pages/video_detail_page.dart';
 import 'package:sport_flutter/presentation/pages/video_grid_page.dart';
 
@@ -27,7 +26,6 @@ class VideosPage extends StatefulWidget {
 
 class _VideosPageState extends State<VideosPage> with RouteAware {
   late final List<VideoBloc> _videoBlocs;
-  late final RecommendedVideoBloc _recommendedVideoBloc;
   bool _didInit = false;
 
   @override
@@ -51,9 +49,8 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
         return bloc;
       });
 
-      final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
-      _recommendedVideoBloc = RecommendedVideoBloc(getRecommendedVideos: getRecommendedVideosUseCase)
-        ..add(FetchRecommendedVideos());
+      // RecommendedVideoBloc is now provided globally, so we fetch it here.
+      context.read<RecommendedVideoBloc>().add(FetchRecommendedVideos());
 
       _didInit = true;
     }
@@ -66,7 +63,6 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
     for (final bloc in _videoBlocs) {
       bloc.close();
     }
-    _recommendedVideoBloc.close();
     super.dispose();
   }
 
@@ -84,24 +80,19 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
       appBar: AppBar(
         title: const Text('Sport Videos'),
       ),
-      body: MultiBlocProvider(
-        providers: [
-          if (_didInit) BlocProvider.value(value: _recommendedVideoBloc),
-        ],
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_didInit) const _VideoCarousel(),
-              const SizedBox(height: 24),
-              if (_didInit)
-                ...[
-                  _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
-                  _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
-                  _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
-                ]
-            ],
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_didInit) const _VideoCarousel(),
+            const SizedBox(height: 24),
+            if (_didInit)
+              ...[
+                _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
+                _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
+                _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
+              ]
+          ],
         ),
       ),
     );
@@ -296,7 +287,7 @@ class _VideoSectionState extends State<_VideoSection> {
                       if (index >= state.videos.length) {
                         return const SizedBox.shrink();
                       }
-                      return _VideoThumbnailCard(video: state.videos[index], allVideos: state.videos);
+                      return _VideoThumbnailCard(video: state.videos[index]);
                     },
                   );
                 }
@@ -316,9 +307,8 @@ class _VideoSectionState extends State<_VideoSection> {
 // --- Thumbnail Card for Horizontal List ---
 class _VideoThumbnailCard extends StatelessWidget {
   final Video video;
-  final List<Video> allVideos;
 
-  const _VideoThumbnailCard({required this.video, required this.allVideos});
+  const _VideoThumbnailCard({required this.video});
 
   @override
   Widget build(BuildContext context) {
