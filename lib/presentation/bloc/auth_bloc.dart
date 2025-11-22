@@ -42,6 +42,9 @@ abstract class AuthEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// Event to check authentication status on app start
+class AppStarted extends AuthEvent {}
+
 class SendCodeEvent extends AuthEvent {
   final String email;
   const SendCodeEvent(this.email);
@@ -95,11 +98,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.getUserProfileUseCase,
     required this.updateUserProfileUseCase,
   }) : super(AuthInitial()) {
+    on<AppStarted>(_onAppStarted);
     on<SendCodeEvent>(_onSendCode);
     on<RegisterEvent>(_onRegister);
     on<LoginEvent>(_onLogin);
     on<LogoutEvent>(_onLogout);
     on<UpdateProfileEvent>(_onUpdateProfile);
+  }
+
+  void _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('user_token');
+
+    if (token != null) {
+      try {
+        final user = await getUserProfileUseCase();
+        emit(AuthAuthenticated(user: user));
+      } catch (_) {
+        emit(AuthUnauthenticated());
+      }
+    } else {
+      emit(AuthUnauthenticated());
+    }
   }
 
   void _onSendCode(SendCodeEvent event, Emitter<AuthState> emit) async {

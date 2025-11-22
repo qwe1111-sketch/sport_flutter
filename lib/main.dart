@@ -4,6 +4,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sport_flutter/presentation/pages/home_page.dart';
 import 'l10n/app_localizations.dart';
 
 // Core
@@ -136,7 +137,7 @@ void main() async {
               sendCodeUseCase: sendCodeUseCase,
               getUserProfileUseCase: getUserProfileUseCase,
               updateUserProfileUseCase: updateUserProfileUseCase,
-            ),
+            )..add(AppStarted()), // Dispatch event on creation
           ),
           BlocProvider(
             create: (context) => VideoBloc(
@@ -210,7 +211,14 @@ class MyApp extends StatelessWidget {
             ),
           ),
           navigatorObservers: [routeObserver],
-          home: const LoginPage(),
+          home: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is AuthAuthenticated) {
+                return const HomePage();
+              }
+              return const LoginPage();
+            },
+          ),
         );
       },
     );
