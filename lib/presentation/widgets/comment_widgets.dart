@@ -1,8 +1,11 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sport_flutter/domain/entities/comment.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
+import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/comment_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -51,6 +54,8 @@ class _CommentSectionState extends State<CommentSection> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Column(
       children: [
         Expanded(
@@ -65,7 +70,7 @@ class _CommentSectionState extends State<CommentSection> {
               // This robust builder logic handles all UI states correctly.
               if (state is CommentLoaded) {
                 if (state.comments.isEmpty) {
-                  return const Center(child: Text('还没有评论, 快来抢沙发吧!'));
+                  return Center(child: Text(localizations.beTheFirstToComment));
                 }
                 return RefreshIndicator(
                   onRefresh: () async =>
@@ -115,6 +120,8 @@ class _CommentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       child: Row(
@@ -137,13 +144,13 @@ class _CommentItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(comment.content),
                 const SizedBox(height: 8),
-                _buildCommentActions(context),
+                _buildCommentActions(context, localizations),
                 if (comment.replyCount > 0 && !isSheetHeader)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: TextButton(
                       onPressed: () => onShowReplies(comment),
-                      child: Text('共${comment.replyCount}条回复 >', style: const TextStyle(fontSize: 12, color: Colors.blueAccent)),
+                      child: Text(localizations.viewAllReplies(comment.replyCount), style: const TextStyle(fontSize: 12, color: Colors.blueAccent)),
                     ),
                   )
               ],
@@ -154,12 +161,17 @@ class _CommentItem extends StatelessWidget {
     );
   }
 
-  Widget _buildCommentActions(BuildContext context) {
+  Widget _buildCommentActions(BuildContext context, AppLocalizations localizations) {
     final localTime = comment.createdAt.toLocal();
     final bloc = context.read<CommentBloc>();
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final voteStyle = textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold);
+    final authState = context.watch<AuthBloc>().state;
+    String? currentUserId;
+    if (authState is AuthAuthenticated) {
+      currentUserId = authState.user.id;
+    }
 
     return Row(
       children: [
@@ -176,8 +188,7 @@ class _CommentItem extends StatelessWidget {
 
         IconButton(icon: Icon(Iconsax.message_text_1, size: 16, color: Colors.grey.shade600), onPressed: () => onReply(comment)),
 
-        // TODO: Replace with actual ownership check
-        if (comment.username == 'wyy') 
+        if (currentUserId != null && comment.userId == currentUserId)
           IconButton(icon: Icon(Iconsax.trash, size: 16, color: Colors.grey.shade600), onPressed: () => bloc.add(DeleteComment(comment.id))),
       ],
     );
@@ -206,6 +217,7 @@ class _RepliesSheetState extends State<_RepliesSheet> {
   @override
   Widget build(BuildContext context) {
     final videoId = context.read<CommentBloc>().currentVideoId;
+    final localizations = AppLocalizations.of(context)!;
 
     return BlocBuilder<CommentBloc, CommentState>(
       builder: (context, state) {
@@ -227,7 +239,7 @@ class _RepliesSheetState extends State<_RepliesSheet> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
               child: Column(
                 children: [
-                  _buildHeader(context, parentComment.replyCount),
+                  _buildHeader(context, parentComment.replyCount, localizations),
                   const Divider(height: 1),
                   _CommentItem(
                       comment: parentComment,
@@ -275,14 +287,14 @@ class _RepliesSheetState extends State<_RepliesSheet> {
       return null;
   }
 
-  Widget _buildHeader(BuildContext context, int replyCount) {
+  Widget _buildHeader(BuildContext context, int replyCount, AppLocalizations localizations) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const SizedBox(width: 48),
-          Text('评论详情 ($replyCount)'),
+          Text(localizations.commentDetails(replyCount)),
           IconButton(
               icon: const Icon(Iconsax.close_circle),
               onPressed: () => Navigator.of(context).pop()),
@@ -343,9 +355,10 @@ class _CommentInputFieldState extends State<_CommentInputField> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final hintText = widget.replyingToComment != null
-        ? '回复 @${widget.replyingToComment!.username}'
-        : '添加评论...';
+        ? localizations.replyingTo(widget.replyingToComment!.username)
+        : localizations.addAComment;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -358,7 +371,7 @@ class _CommentInputFieldState extends State<_CommentInputField> {
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Row(
                 children: [
-                  Text('正在回复 @${widget.replyingToComment!.username}', style: Theme.of(context).textTheme.bodySmall),
+                  Text(localizations.replyingTo(widget.replyingToComment!.username), style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Iconsax.close_circle, size: 16),

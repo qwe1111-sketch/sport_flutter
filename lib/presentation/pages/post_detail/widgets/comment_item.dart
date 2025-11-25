@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/common/time_formatter.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
+import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/locale_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/reply_sheet.dart';
@@ -44,6 +46,7 @@ class CommentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.fromLTRB(isReply ? 40.0 : 16.0, 8.0, 16.0, 8.0),
       child: Column(
@@ -79,7 +82,7 @@ class CommentItem extends StatelessWidget {
               padding: const EdgeInsets.only(top: 8.0),
               child: GestureDetector(
                 onTap: () => _showReplySheet(context, comment),
-                child: Text('共 ${comment.replyCount} 条回复 >', style: const TextStyle(color: Colors.blueAccent, fontSize: 12)),
+                child: Text(localizations.viewAllReplies(comment.replyCount), style: const TextStyle(color: Colors.blueAccent, fontSize: 12)),
               ),
             ),
         ],
@@ -92,6 +95,12 @@ class CommentItem extends StatelessWidget {
     final voteStyle = textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold);
     final locale = context.watch<LocaleBloc>().state.locale.toLanguageTag();
     final timeString = formatTimestamp(comment.createdAt, locale: locale.replaceAll('-', '_'));
+    final authState = context.watch<AuthBloc>().state;
+    String? currentUserId;
+    if (authState is AuthAuthenticated) {
+      currentUserId = authState.user.id;
+    }
+
 
     return Row(
       children: [
@@ -113,8 +122,7 @@ class CommentItem extends StatelessWidget {
           icon: const Icon(Iconsax.message_text_1, size: 16, color: Colors.grey),
           onPressed: () => onReplyTapped(comment),
         ),
-        // TODO: Replace with actual ownership check from a user service or similar
-        if (comment.username == 'wyy')
+        if (currentUserId != null && comment.userId == currentUserId)
           IconButton(
             icon: const Icon(Iconsax.trash, size: 16, color: Colors.grey),
             onPressed: () => bloc.add(DeleteComment(comment.id)),

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Allow cleartext traffic for specific domains needed for video playback and API access -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">vfx.mtime.cn</domain>
-        <domain includeSubdomains="true">121.41.33.116</domain> <!-- Your server IP -->
+        <domain includeSubdomains="true">120.55.88.185</domain> <!-- Your server IP -->
     </domain-config>
 </network-security-config>

@@ -4,6 +4,7 @@ import 'package:sport_flutter/domain/entities/post_comment.dart';
 // It is separate from the domain Entity.
 class PostCommentModel {
   final int id;
+  final String userId;
   final int? parentCommentId;
   final String content;
   final String username;
@@ -17,6 +18,7 @@ class PostCommentModel {
 
   const PostCommentModel({
     required this.id,
+    required this.userId,
     this.parentCommentId,
     required this.content,
     required this.username,
@@ -55,6 +57,7 @@ class PostCommentModel {
 
     return PostCommentModel(
       id: json['id'] as int,
+      userId: json['userId'].toString(), // Assuming userId can be int or string from json
       parentCommentId: json['parentCommentId'] as int?,
       content: json['content'] as String,
       username: json['username'] as String,
@@ -74,6 +77,7 @@ class PostCommentModel {
   PostComment toEntity() {
     return PostComment(
       id: id,
+      userId: userId,
       parentCommentId: parentCommentId,
       content: content,
       username: username,

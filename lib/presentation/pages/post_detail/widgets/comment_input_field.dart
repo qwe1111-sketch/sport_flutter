@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -39,9 +40,10 @@ class _CommentInputFieldState extends State<CommentInputField> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final hintText = widget.replyingTo != null
-        ? '回复 @${widget.replyingTo!.username}'
-        : '发表你的评论...';
+        ? localizations.replyingTo(widget.replyingTo!.username)
+        : localizations.postYourComment;
 
     return Material(
       elevation: 8.0, // Add some shadow
@@ -53,7 +55,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
             if (widget.replyingTo != null)
               Row(
                 children: [
-                  Text('Replying to @${widget.replyingTo!.username}'),
+                  Text(localizations.replyingTo(widget.replyingTo!.username)),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Iconsax.close_circle, size: 18),

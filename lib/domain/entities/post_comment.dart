@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 
 class PostComment extends Equatable {
   final int id;
+  final String userId;
   final int? parentCommentId;
   final String content;
   final String username;
@@ -19,6 +20,7 @@ class PostComment extends Equatable {
 
   const PostComment({
     required this.id,
+    required this.userId,
     this.parentCommentId,
     required this.content,
     required this.username,
@@ -33,6 +35,7 @@ class PostComment extends Equatable {
 
   PostComment copyWith({
     int? id,
+    String? userId,
     int? parentCommentId,
     String? content,
     String? username,
@@ -47,6 +50,7 @@ class PostComment extends Equatable {
   }) {
     return PostComment(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       parentCommentId: parentCommentId ?? this.parentCommentId,
       content: content ?? this.content,
       username: username ?? this.username,
@@ -63,6 +67,7 @@ class PostComment extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        userId,
         parentCommentId,
         content,
         username,

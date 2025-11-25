@@ -3,6 +3,8 @@ import 'package:sport_flutter/domain/entities/comment.dart';
 class CommentModel extends Comment {
   const CommentModel({
     required super.id,
+    required super.userId,
+    super.parentCommentId,
     required super.content,
     required super.username,
     super.userAvatarUrl,
@@ -25,6 +27,8 @@ class CommentModel extends Comment {
 
     return CommentModel(
       id: json['id'] ?? 0,
+      userId: (json['user_id'] ?? '').toString(),
+      parentCommentId: json['parent_comment_id'] as int?,
       content: json['content'] ?? '',
       username: json['username'] ?? 'Unknown User',
       userAvatarUrl: json['userAvatarUrl'],
