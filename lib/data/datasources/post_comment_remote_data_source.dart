@@ -21,7 +21,7 @@ class PostCommentRemoteDataSourceImpl implements PostCommentRemoteDataSource {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('user_token');
     return {
-      'Content-Type': 'application/json; charset=UTF-8',
+      'Content-Type': 'application/json; charset=utf-8',
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }
@@ -51,11 +51,12 @@ class PostCommentRemoteDataSourceImpl implements PostCommentRemoteDataSource {
       if (parentCommentId != null) 'parentCommentId': parentCommentId,
       'createdAt': DateTime.now().toUtc().toIso8601String(),
     };
-    
+
     final response = await client.post(
       Uri.parse('$_baseUrl/post-comments'),
       headers: headers,
       body: json.encode(body),
+      encoding: Encoding.getByName('utf-8'),
     );
 
     if (response.statusCode != 201) {

@@ -75,7 +75,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('user_token');
     return {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
       if (token != null) 'Authorization': 'Bearer $token'
     };
   }
@@ -92,7 +92,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
         headers: headers,
       );
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
         final comments = data.map((json) => CommentModel.fromJson(json)).toList();
         
         // Recalculate reply counts to include nested replies
@@ -119,6 +119,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
         Uri.parse('$apiBaseUrl/comments/video/${event.videoId}'),
         headers: headers,
         body: body,
+        encoding: Encoding.getByName('utf-8'),
       );
 
       if (response.statusCode == 201) {
