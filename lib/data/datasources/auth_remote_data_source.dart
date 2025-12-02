@@ -1,19 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sport_flutter/data/models/user_model.dart'; // We will create this model next
+import 'package:sport_flutter/data/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<String> login(String username, String password);
   Future<void> register(String username, String email, String password, String verificationCode);
   Future<void> sendVerificationCode(String email);
+  Future<void> sendPasswordResetCode(String email);
+  Future<void> resetPassword(String email, String code, String newPassword);
   Future<UserModel> getUserProfile();
   Future<UserModel> updateProfile({String? username, String? avatarUrl, String? bio});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
-  static const String _baseUrl = 'http://120.55.88.185:3030/api/auth';
+  static const String _baseUrl = 'http://192.168.212.30:3030/api/auth';
 
   AuthRemoteDataSourceImpl({required this.client});
 
@@ -28,13 +30,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     };
   }
 
-  // Helper to handle error responses
   Exception _handleError(http.Response response) {
     try {
       final errorBody = jsonDecode(response.body);
-      return Exception(errorBody['message'] ?? 'An unknown error occurred');
+      final errorMessage = errorBody['error'] ?? errorBody['message'] ?? 'An unknown error occurred';
+      return Exception(errorMessage);
     } catch (e) {
-      // If the body is not a valid JSON (e.g., HTML error page)
       return Exception('Failed to connect to the server. Status code: ${response.statusCode}');
     }
   }
@@ -78,7 +79,36 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({'email': email}),
     );
+    if (response.statusCode != 200) {
+      throw _handleError(response);
+    }
+  }
 
+  @override
+  Future<void> sendPasswordResetCode(String email) async {
+    final headers = await _getAuthHeaders();
+    final response = await client.post(
+      Uri.parse('$_baseUrl/send-reset-code'),
+      headers: headers,
+      body: jsonEncode({'email': email}),
+    );
+    if (response.statusCode != 200) {
+      throw _handleError(response);
+    }
+  }
+
+  @override
+  Future<void> resetPassword(String email, String code, String newPassword) async {
+    final headers = await _getAuthHeaders();
+    final response = await client.post(
+      Uri.parse('$_baseUrl/reset-password'),
+      headers: headers,
+      body: jsonEncode({
+        'email': email,
+        'code': code,
+        'newPassword': newPassword,
+      }),
+    );
     if (response.statusCode != 200) {
       throw _handleError(response);
     }

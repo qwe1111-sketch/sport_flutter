@@ -32,6 +32,8 @@ import 'package:sport_flutter/data/repositories/post_comment_repository_impl.dar
 import 'package:sport_flutter/domain/usecases/login.dart';
 import 'package:sport_flutter/domain/usecases/register.dart';
 import 'package:sport_flutter/domain/usecases/send_verification_code.dart';
+import 'package:sport_flutter/domain/usecases/send_password_reset_code.dart';
+import 'package:sport_flutter/domain/usecases/reset_password.dart';
 import 'package:sport_flutter/domain/usecases/get_user_profile.dart';
 import 'package:sport_flutter/domain/usecases/update_user_profile.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
@@ -93,6 +95,8 @@ void main() async {
   final loginUseCase = Login(authRepository);
   final registerUseCase = Register(authRepository);
   final sendCodeUseCase = SendVerificationCode(authRepository);
+  final sendPasswordResetCodeUseCase = SendPasswordResetCode(authRepository);
+  final resetPasswordUseCase = ResetPassword(authRepository);
   final getUserProfileUseCase = GetUserProfile(authRepository);
   final updateUserProfileUseCase = UpdateUserProfile(authRepository);
   final getVideosUseCase = GetVideos(videoRepository);
@@ -140,6 +144,8 @@ void main() async {
               loginUseCase: loginUseCase,
               registerUseCase: registerUseCase,
               sendCodeUseCase: sendCodeUseCase,
+              sendPasswordResetCodeUseCase: sendPasswordResetCodeUseCase,
+              resetPasswordUseCase: resetPasswordUseCase,
               getUserProfileUseCase: getUserProfileUseCase,
               updateUserProfileUseCase: updateUserProfileUseCase,
             )..add(AppStarted()), // Dispatch event on creation

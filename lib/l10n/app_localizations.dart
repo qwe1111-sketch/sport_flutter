@@ -425,7 +425,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyPolicyContent.
   ///
   /// In en, this message translates to:
-  /// **'This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You. We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.\n\n**Information Collection and Use**\n\n**Types of Data Collected**\n*   **Personal Data:** While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You. Personally identifiable information may include, but is not limited to: Email address, Username, and Profile Picture.\n*   **Usage Data:** Usage Data is collected automatically when using the Service. This may include information such as Your device\'s Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that You visit, the time and date of Your visit, the time spent on those pages, unique device identifiers and other diagnostic data.\n*   **User-Generated Content:** We collect the content you create on our Service, which includes videos and images you upload, comments you post, likes, and favorites.\n\n**Use of Your Personal Data**\nThe Company may use Personal Data for the following purposes:\n*   To provide and maintain our Service, including to monitor the usage of our Service.\n*   To manage Your Account: to manage Your registration as a user of the Service.\n*   To contact You: To contact You by email regarding updates or informative communications related to the functionalities, products or contracted services.\n*   To provide You with news, special offers and general information about other goods, services and events which we offer.\n*   To manage Your requests: To attend and manage Your requests to Us.\n\n**Sharing Your Information**\nWe do not sell your personal information. We may share your information with third-party service providers who perform services on our behalf, such as hosting services and analytics.\n\n**Security of Your Personal Data**\nThe security of Your Personal Data is important to Us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While We strive to use commercially acceptable means to protect Your Personal Data, We cannot guarantee its absolute security.\n\n**Children\'s Privacy**\nOur Service does not address anyone under the age of 13. We do not knowingly collect personally identifiable information from anyone under the age of 13. If You are a parent or guardian and You are aware that Your child has provided Us with Personal Data, please contact Us.\n\n**Changes to this Privacy Policy**\nWe may update Our Privacy Policy from time to time. We will notify You of any changes by posting the new Privacy Policy on this page.'**
+  /// **'This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You. We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.\n\n**Information Collection and Use**\n\n**Types of Data Collected**\n*   **Personal Data:** While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You. Personally identifiable information may include, but is not limited to: Email address, Username, and Profile Picture.\n*   **Usage Data:** Usage Data is collected automatically when using the Service. This may include information such as Your device\'s Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that You visit, the time and date of Your visit, the time spent on those pages, unique device identifiers and other diagnostic data.\n*   **User-Generated Content:** We collect the content you create on our Service, which includes videos and images you upload, comments you post, likes, and favorites.\n\n**Use of Your Personal Data**\nThe Company may use Personal Data for the following purposes:\n*   To provide and maintain our Service, including to monitor the usage of our Service.\n*   To manage Your Account: to manage Your registration as a user of the Service.\n*   To contact You: To contact You by email regarding updates or informative communications related to the functionalities, products or contracted services.\n*   To provide You with news, special offers and general information about other goods, services and events which we offer.\n*   To manage Your requests: To attend and manage Your requests to Us.\n\n**Sharing Your Information**\nWe do not sell your personal information. We may share your information with third-party service providers who perform services on our behalf, such as hosting services and analytics.'**
   String get privacyPolicyContent;
 
   /// No description provided for @introduction.
@@ -499,6 +499,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sport Videos'**
   String get sportVideos;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPassword;
+
+  /// No description provided for @resetYourPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Your Password'**
+  String get resetYourPassword;
+
+  /// No description provided for @resetPasswordInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email address. We will send you a verification code to reset your password.'**
+  String get resetPasswordInstruction;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get newPassword;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get confirmNewPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @confirmReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Reset'**
+  String get confirmReset;
 }
 
 class _AppLocalizationsDelegate

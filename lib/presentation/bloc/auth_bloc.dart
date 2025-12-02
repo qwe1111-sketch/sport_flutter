@@ -4,6 +4,8 @@ import 'package:sport_flutter/domain/entities/user.dart';
 import 'package:sport_flutter/domain/usecases/get_user_profile.dart';
 import 'package:sport_flutter/domain/usecases/login.dart';
 import 'package:sport_flutter/domain/usecases/register.dart';
+import 'package:sport_flutter/domain/usecases/reset_password.dart';
+import 'package:sport_flutter/domain/usecases/send_password_reset_code.dart';
 import 'package:sport_flutter/domain/usecases/send_verification_code.dart';
 import 'package:sport_flutter/domain/usecases/update_user_profile.dart';
 import 'package:equatable/equatable.dart';
@@ -16,8 +18,14 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthInitial extends AuthState {}
-class AuthLoading extends AuthState {}
+class AuthLoading extends AuthState {} // Generic loading for other actions
+
+// Specific loading states for Reset Password Page
+class SendingPasswordResetCodeInProgress extends AuthState {}
+class ResettingPasswordInProgress extends AuthState {}
+
 class AuthCodeSent extends AuthState {}
+class PasswordResetSuccess extends AuthState {}
 class AuthAuthenticated extends AuthState {
   final User user;
   const AuthAuthenticated({required this.user});
@@ -42,7 +50,6 @@ abstract class AuthEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-// Event to check authentication status on app start
 class AppStarted extends AuthEvent {}
 
 class SendCodeEvent extends AuthEvent {
@@ -50,6 +57,24 @@ class SendCodeEvent extends AuthEvent {
   const SendCodeEvent(this.email);
   @override
   List<Object?> get props => [email];
+}
+
+class SendPasswordResetCodeEvent extends AuthEvent {
+  final String email;
+  const SendPasswordResetCodeEvent(this.email);
+  @override
+  List<Object?> get props => [email];
+}
+
+class ResetPasswordEvent extends AuthEvent {
+  final String email;
+  final String code;
+  final String newPassword;
+
+  const ResetPasswordEvent(this.email, this.code, this.newPassword);
+
+  @override
+  List<Object?> get props => [email, code, newPassword];
 }
 
 class RegisterEvent extends AuthEvent {
@@ -88,6 +113,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Login loginUseCase;
   final Register registerUseCase;
   final SendVerificationCode sendCodeUseCase;
+  final SendPasswordResetCode sendPasswordResetCodeUseCase;
+  final ResetPassword resetPasswordUseCase;
   final GetUserProfile getUserProfileUseCase;
   final UpdateUserProfile updateUserProfileUseCase;
 
@@ -95,15 +122,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.loginUseCase,
     required this.registerUseCase,
     required this.sendCodeUseCase,
+    required this.sendPasswordResetCodeUseCase,
+    required this.resetPasswordUseCase,
     required this.getUserProfileUseCase,
     required this.updateUserProfileUseCase,
   }) : super(AuthInitial()) {
     on<AppStarted>(_onAppStarted);
     on<SendCodeEvent>(_onSendCode);
+    on<SendPasswordResetCodeEvent>(_onSendPasswordResetCode);
+    on<ResetPasswordEvent>(_onResetPassword);
     on<RegisterEvent>(_onRegister);
     on<LoginEvent>(_onLogin);
     on<LogoutEvent>(_onLogout);
     on<UpdateProfileEvent>(_onUpdateProfile);
+  }
+
+  String _extractErrorMessage(Object e) {
+    if (e is Exception) {
+      return e.toString().replaceFirst('Exception: ', '');
+    }
+    return 'An unknown error occurred';
   }
 
   void _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
@@ -123,12 +161,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onSendCode(SendCodeEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(AuthLoading()); // Keep generic for registration
     try {
       await sendCodeUseCase(event.email);
       emit(AuthCodeSent());
     } catch (e) {
-      emit(const AuthError('验证码发送失败，请稍后重试。'));
+      emit(AuthError(_extractErrorMessage(e)));
+    }
+  }
+
+  void _onSendPasswordResetCode(SendPasswordResetCodeEvent event, Emitter<AuthState> emit) async {
+    emit(SendingPasswordResetCodeInProgress()); // Use specific state
+    try {
+      await sendPasswordResetCodeUseCase(event.email);
+      emit(AuthCodeSent());
+    } catch (e) {
+      emit(AuthError(_extractErrorMessage(e)));
+    }
+  }
+
+  void _onResetPassword(ResetPasswordEvent event, Emitter<AuthState> emit) async {
+    emit(ResettingPasswordInProgress()); // Use specific state
+    try {
+      await resetPasswordUseCase(event.email, event.code, event.newPassword);
+      emit(PasswordResetSuccess());
+    } catch (e) {
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 
@@ -138,7 +196,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await registerUseCase(event.username, event.email, event.password, event.code);
       emit(AuthRegistrationSuccess());
     } catch (e) {
-      emit(const AuthError('注册失败，请检查您的输入。'));
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 
@@ -151,7 +209,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await getUserProfileUseCase();
       emit(AuthAuthenticated(user: user));
     } catch (e) {
-      emit(const AuthError('登录失败，请检查您的用户名和密码。'));
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 
@@ -171,7 +229,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthAuthenticated(user: updatedUser));
     } catch (e) {
-      emit(const AuthError('更新个人资料失败。'));
+      emit(AuthError(_extractErrorMessage(e)));
     }
   }
 }

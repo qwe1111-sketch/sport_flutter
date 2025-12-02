@@ -243,4 +243,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sportVideos => '运动视频';
+
+  @override
+  String get resetPassword => '重置密码';
+
+  @override
+  String get resetYourPassword => '重设您的密码';
+
+  @override
+  String get resetPasswordInstruction => '请输入您的邮箱地址，我们会向您发送一个验证码来重置密码。';
+
+  @override
+  String get newPassword => '新密码';
+
+  @override
+  String get confirmNewPassword => '确认新密码';
+
+  @override
+  String get passwordsDoNotMatch => '两次输入的密码不一致';
+
+  @override
+  String get confirmReset => '确认重置';
 }

@@ -8,6 +8,7 @@ import 'package:sport_flutter/presentation/pages/favorites_page.dart';
 import 'package:sport_flutter/presentation/pages/login_page.dart';
 import 'package:sport_flutter/presentation/pages/my_posts_page.dart';
 import 'package:sport_flutter/presentation/pages/privacy_policy_page.dart';
+import 'package:sport_flutter/presentation/pages/reset_password_page.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -135,6 +136,15 @@ class ProfilePage extends StatelessWidget {
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => EditProfilePage(user: user),
+          ));
+        },
+      ),
+      _ActionItem(
+        icon: Iconsax.key,
+        title: l10n.resetPassword,
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => const ResetPasswordPage(),
           ));
         },
       ),
