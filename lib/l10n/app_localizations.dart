@@ -224,6 +224,12 @@ abstract class AppLocalizations {
   /// **'Don\'t have an account? Sign up'**
   String get dontHaveAnAccount;
 
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
   /// No description provided for @myProfile.
   ///
   /// In en, this message translates to:
@@ -541,6 +547,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm Reset'**
   String get confirmReset;
+
+  /// No description provided for @passwordResetSuccessLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Password has been reset. Please log in.'**
+  String get passwordResetSuccessLogin;
+
+  /// No description provided for @usernameAndEmailMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Username and email mismatch'**
+  String get usernameAndEmailMismatch;
 }
 
 class _AppLocalizationsDelegate

@@ -33,7 +33,7 @@ class ProfilePage extends StatelessWidget {
         listener: (context, state) {
           if (state is AuthUnauthenticated) {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => LoginPage()),
+              MaterialPageRoute(builder: (_) => const LoginPage()),
               (route) => false,
             );
           }
@@ -167,6 +167,7 @@ class ProfilePage extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
+          backgroundColor: Colors.grey.shade100.withOpacity(0.95),
           title: Text(l10n.selectLanguage),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -200,6 +201,7 @@ class ProfilePage extends StatelessWidget {
           showDialog(
             context: context,
             builder: (dialogContext) => AlertDialog(
+              backgroundColor: Colors.white.withOpacity(0.95),
               title: Text(l10n.logout),
               content: Text(l10n.logoutConfirmation),
               actions: [

@@ -33,6 +33,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> forgotPasswordSendCode(String username, String email) {
+    return remoteDataSource.forgotPasswordSendCode(username, email);
+  }
+
+  @override
+  Future<void> forgotPasswordReset(String username, String email, String code, String newPassword) {
+    return remoteDataSource.forgotPasswordReset(username, email, code, newPassword);
+  }
+
+  @override
   Future<User> getUserProfile() {
     return remoteDataSource.getUserProfile();
   }

@@ -9,13 +9,15 @@ abstract class AuthRemoteDataSource {
   Future<void> sendVerificationCode(String email);
   Future<void> sendPasswordResetCode(String email);
   Future<void> resetPassword(String email, String code, String newPassword);
+  Future<void> forgotPasswordSendCode(String username, String email);
+  Future<void> forgotPasswordReset(String username, String email, String code, String newPassword);
   Future<UserModel> getUserProfile();
   Future<UserModel> updateProfile({String? username, String? avatarUrl, String? bio});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
-  static const String _baseUrl = 'http://192.168.212.30:3030/api/auth';
+  static const String _baseUrl = 'http://120.55.88.185:3030/api/auth';
 
   AuthRemoteDataSourceImpl({required this.client});
 
@@ -104,6 +106,35 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       Uri.parse('$_baseUrl/reset-password'),
       headers: headers,
       body: jsonEncode({
+        'email': email,
+        'code': code,
+        'newPassword': newPassword,
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw _handleError(response);
+    }
+  }
+
+  @override
+  Future<void> forgotPasswordSendCode(String username, String email) async {
+    final response = await client.post(
+      Uri.parse('$_baseUrl/forgot-password/send-code'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({'username': username, 'email': email}),
+    );
+    if (response.statusCode != 200) {
+      throw _handleError(response);
+    }
+  }
+
+  @override
+  Future<void> forgotPasswordReset(String username, String email, String code, String newPassword) async {
+    final response = await client.post(
+      Uri.parse('$_baseUrl/forgot-password/reset'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode({
+        'username': username,
         'email': email,
         'code': code,
         'newPassword': newPassword,

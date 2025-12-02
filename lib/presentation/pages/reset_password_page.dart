@@ -1,9 +1,9 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
+import 'package:sport_flutter/presentation/pages/login_page.dart'; // Import login page
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
@@ -34,19 +34,29 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   }
 
   void _startCountdown() {
-    _countdown = 60;
+    _timer?.cancel();
+    setState(() {
+      _countdown = 60;
+    });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_countdown > 0) {
-        setState(() => _countdown--);
+        setState(() {
+          _countdown--;
+        });
       } else {
-        _timer?.cancel();
-        setState(() {});
+        timer.cancel();
+        setState(() {}); // Rebuild to re-enable button
       }
     });
   }
 
   void _sendVerificationCode() {
     if (_emailFieldKey.currentState?.validate() == true) {
+      _startCountdown();
       context.read<AuthBloc>().add(SendPasswordResetCodeEvent(_emailController.text));
     }
   }
@@ -72,13 +82,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(l10n.codeSent)));
-          _startCountdown();
-        } else if (state is PasswordResetSuccess) {
+        } else if (state is AuthUnauthenticated && ModalRoute.of(context)?.isCurrent == true) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text('${l10n.registrationSuccessful}, please log in again'))); // A more generic success message can be created
-          context.read<AuthBloc>().add(LogoutEvent());
+            ..showSnackBar(SnackBar(content: Text(l10n.passwordResetSuccessLogin)));
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+            (Route<dynamic> route) => false,
+          );
         } else if (state is AuthError) {
+          if (_timer?.isActive ?? false) {
+            _timer!.cancel();
+            setState(() {});
+          }
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
@@ -141,18 +157,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      BlocBuilder<AuthBloc, AuthState>(
-                        builder: (context, state) {
-                          final isSendingCode = state is SendingPasswordResetCodeInProgress;
-                          return TextButton(
-                            onPressed: isSendingCode || (_timer?.isActive ?? false)
-                                ? null
-                                : _sendVerificationCode,
-                            child: isSendingCode
-                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                                : Text((_timer?.isActive ?? false) ? '$_countdown s' : l10n.sendVerificationCode),
-                          );
-                        },
+                      TextButton(
+                        onPressed: (_timer?.isActive ?? false) ? null : _sendVerificationCode,
+                        child: Text((_timer?.isActive ?? false) ? '$_countdown s' : l10n.sendVerificationCode),
                       ),
                     ],
                   ),

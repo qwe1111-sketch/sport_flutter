@@ -99,6 +99,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dontHaveAnAccount => 'Don\'t have an account? Sign up';
 
   @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
   String get myProfile => 'My Profile';
 
   @override
@@ -267,4 +270,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmReset => 'Confirm Reset';
+
+  @override
+  String get passwordResetSuccessLogin =>
+      'Password has been reset. Please log in.';
+
+  @override
+  String get usernameAndEmailMismatch => 'Username and email mismatch';
 }

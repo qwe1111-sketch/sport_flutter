@@ -1,4 +1,4 @@
-
+import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,14 +21,38 @@ class _RegisterPageState extends State<RegisterPage> {
   final _codeController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isAgreementChecked = false;
+  bool _isCodeSent = false;
+  Timer? _timer;
+  int _countdown = 60;
 
   @override
   void dispose() {
+    _timer?.cancel();
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _codeController.dispose();
     super.dispose();
+  }
+
+  void _startCountdown() {
+    if (!mounted) return;
+    setState(() {
+      _isCodeSent = true;
+      _countdown = 60;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_countdown > 0) {
+        setState(() => _countdown--);
+      } else {
+        _timer?.cancel();
+        setState(() => _isCodeSent = false);
+      }
+    });
   }
 
   void _register() {
@@ -46,8 +70,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _sendVerificationCode() {
     final l10n = AppLocalizations.of(context)!;
-    // Basic email validation before sending code
     if (_emailController.text.isNotEmpty && _emailController.text.contains('@')) {
+      _startCountdown();
       context.read<AuthBloc>().add(SendCodeEvent(_emailController.text));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,28 +87,22 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(title: Text(l10n.register)),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthLoading) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => const Center(child: CircularProgressIndicator()),
-            );
-          }
           if (state is AuthRegistrationSuccess) {
-            Navigator.of(context).pop(); // Close loading dialog
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(l10n.registrationSuccessful), backgroundColor: Colors.green),
             );
             Navigator.of(context).pop(); // Go back to login page
           }
           if (state is AuthError) {
-            Navigator.of(context).pop(); // Close loading dialog
+            if (state.errorType == 'SendCodeError') {
+              _timer?.cancel();
+              setState(() => _isCodeSent = false);
+            }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message), backgroundColor: Colors.red),
             );
           }
           if (state is AuthCodeSent) {
-            Navigator.of(context).pop(); // Close loading dialog
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(l10n.codeSent), backgroundColor: Colors.blue),
             );
@@ -134,8 +152,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed: _sendVerificationCode,
-                        child: Text(l10n.sendVerificationCode),
+                        onPressed: _isCodeSent ? null : _sendVerificationCode,
+                        child: Text(_isCodeSent ? '$_countdown s' : l10n.sendVerificationCode),
                       ),
                     ],
                   ),
@@ -158,7 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             children: <TextSpan>[
                               TextSpan(text: l10n.agreement),
                               TextSpan(
-                                text: l10n.privacyPolicy, // Changed from userAgreement
+                                text: l10n.privacyPolicy,
                                 style: TextStyle(color: Theme.of(context).colorScheme.primary),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
@@ -177,7 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ElevatedButton(
                     onPressed: _isAgreementChecked ? _register : null,
                     style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                    child: Text(l10n.register),
+                    child: state is AuthLoading ? const CircularProgressIndicator() : Text(l10n.register),
                   ),
                 ],
               ),

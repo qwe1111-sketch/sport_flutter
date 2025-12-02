@@ -98,6 +98,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dontHaveAnAccount => '没有帐户？ 注册';
 
   @override
+  String get forgotPassword => '忘记密码？';
+
+  @override
   String get myProfile => '我的资料';
 
   @override
@@ -264,4 +267,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get confirmReset => '确认重置';
+
+  @override
+  String get passwordResetSuccessLogin => '密码已成功重置，请登录';
+
+  @override
+  String get usernameAndEmailMismatch => '用户名和电子邮件不匹配';
 }

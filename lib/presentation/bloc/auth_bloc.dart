@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sport_flutter/domain/entities/user.dart';
+import 'package:sport_flutter/domain/usecases/forgot_password_reset.dart';
+import 'package:sport_flutter/domain/usecases/forgot_password_send_code.dart';
 import 'package:sport_flutter/domain/usecases/get_user_profile.dart';
 import 'package:sport_flutter/domain/usecases/login.dart';
 import 'package:sport_flutter/domain/usecases/register.dart';
@@ -18,14 +20,15 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthInitial extends AuthState {}
-class AuthLoading extends AuthState {} // Generic loading for other actions
+class AuthLoading extends AuthState {}
 
-// Specific loading states for Reset Password Page
-class SendingPasswordResetCodeInProgress extends AuthState {}
 class ResettingPasswordInProgress extends AuthState {}
 
 class AuthCodeSent extends AuthState {}
 class PasswordResetSuccess extends AuthState {}
+class ForgotPasswordCodeSent extends AuthState {}
+class ForgotPasswordSuccess extends AuthState {}
+
 class AuthAuthenticated extends AuthState {
   final User user;
   const AuthAuthenticated({required this.user});
@@ -37,9 +40,10 @@ class AuthUnauthenticated extends AuthState {}
 
 class AuthError extends AuthState {
   final String message;
-  const AuthError(this.message);
+  final String? errorType;
+  const AuthError(this.message, {this.errorType});
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, errorType];
 }
 // #endregion
 
@@ -75,6 +79,28 @@ class ResetPasswordEvent extends AuthEvent {
 
   @override
   List<Object?> get props => [email, code, newPassword];
+}
+
+class ForgotPasswordSendCodeEvent extends AuthEvent {
+  final String username;
+  final String email;
+
+  const ForgotPasswordSendCodeEvent(this.username, this.email);
+
+  @override
+  List<Object?> get props => [username, email];
+}
+
+class ForgotPasswordResetEvent extends AuthEvent {
+  final String username;
+  final String email;
+  final String code;
+  final String newPassword;
+
+  const ForgotPasswordResetEvent(this.username, this.email, this.code, this.newPassword);
+
+  @override
+  List<Object?> get props => [username, email, code, newPassword];
 }
 
 class RegisterEvent extends AuthEvent {
@@ -115,6 +141,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SendVerificationCode sendCodeUseCase;
   final SendPasswordResetCode sendPasswordResetCodeUseCase;
   final ResetPassword resetPasswordUseCase;
+  final ForgotPasswordSendCode forgotPasswordSendCodeUseCase;
+  final ForgotPasswordReset forgotPasswordResetUseCase;
   final GetUserProfile getUserProfileUseCase;
   final UpdateUserProfile updateUserProfileUseCase;
 
@@ -124,6 +152,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.sendCodeUseCase,
     required this.sendPasswordResetCodeUseCase,
     required this.resetPasswordUseCase,
+    required this.forgotPasswordSendCodeUseCase,
+    required this.forgotPasswordResetUseCase,
     required this.getUserProfileUseCase,
     required this.updateUserProfileUseCase,
   }) : super(AuthInitial()) {
@@ -131,6 +161,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SendCodeEvent>(_onSendCode);
     on<SendPasswordResetCodeEvent>(_onSendPasswordResetCode);
     on<ResetPasswordEvent>(_onResetPassword);
+    on<ForgotPasswordSendCodeEvent>(_onForgotPasswordSendCode);
+    on<ForgotPasswordResetEvent>(_onForgotPasswordReset);
     on<RegisterEvent>(_onRegister);
     on<LoginEvent>(_onLogin);
     on<LogoutEvent>(_onLogout);
@@ -139,7 +171,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   String _extractErrorMessage(Object e) {
     if (e is Exception) {
-      return e.toString().replaceFirst('Exception: ', '');
+      final message = e.toString().replaceFirst('Exception: ', '');
+      if (message == '用户名与邮箱不匹配') {
+        return 'usernameAndEmailMismatch';
+      }
+      return message;
     }
     return 'An unknown error occurred';
   }
@@ -161,17 +197,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onSendCode(SendCodeEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading()); // Keep generic for registration
     try {
       await sendCodeUseCase(event.email);
       emit(AuthCodeSent());
     } catch (e) {
-      emit(AuthError(_extractErrorMessage(e)));
+      emit(AuthError(_extractErrorMessage(e), errorType: 'SendCodeError'));
     }
   }
 
   void _onSendPasswordResetCode(SendPasswordResetCodeEvent event, Emitter<AuthState> emit) async {
-    emit(SendingPasswordResetCodeInProgress()); // Use specific state
     try {
       await sendPasswordResetCodeUseCase(event.email);
       emit(AuthCodeSent());
@@ -181,10 +215,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onResetPassword(ResetPasswordEvent event, Emitter<AuthState> emit) async {
-    emit(ResettingPasswordInProgress()); // Use specific state
+    emit(ResettingPasswordInProgress());
     try {
       await resetPasswordUseCase(event.email, event.code, event.newPassword);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_token');
       emit(PasswordResetSuccess());
+      emit(AuthUnauthenticated());
+    } catch (e) {
+      emit(AuthError(_extractErrorMessage(e)));
+    }
+  }
+
+  void _onForgotPasswordSendCode(ForgotPasswordSendCodeEvent event, Emitter<AuthState> emit) async {
+    try {
+      await forgotPasswordSendCodeUseCase(event.username, event.email);
+      emit(ForgotPasswordCodeSent());
+    } catch (e) {
+      emit(AuthError(_extractErrorMessage(e), errorType: 'ForgotPasswordSendCodeError'));
+    }
+  }
+
+  void _onForgotPasswordReset(ForgotPasswordResetEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      await forgotPasswordResetUseCase(event.username, event.email, event.code, event.newPassword);
+      emit(ForgotPasswordSuccess());
     } catch (e) {
       emit(AuthError(_extractErrorMessage(e)));
     }

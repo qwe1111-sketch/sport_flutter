@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
+import 'package:sport_flutter/presentation/pages/forgot_password_page.dart';
 import 'package:sport_flutter/presentation/pages/home_page.dart';
 import 'package:sport_flutter/presentation/pages/register_page.dart';
 
@@ -70,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                     obscureText: true,
                     validator: (value) => value!.isEmpty ? l10n.enterPassword : null,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   if (state is AuthLoading)
                     const CircularProgressIndicator()
                   else ...[
@@ -96,7 +97,24 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     child: Text(l10n.dontHaveAnAccount),
-                  )
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final result = await Navigator.of(context).push<bool>(
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: BlocProvider.of<AuthBloc>(context),
+                            child: const ForgotPasswordPage(),
+                          ),
+                        ),
+                      );
+                      if (result == true) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.codeSent)));
+                      }
+                    },
+                    child: Text(l10n.forgotPassword),
+                  ),
                 ],
               ),
             ),

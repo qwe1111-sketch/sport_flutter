@@ -37,6 +37,7 @@
   "password": "Password",
   "enterPassword": "Please enter your password",
   "dontHaveAnAccount": "Don't have an account? Sign up",
+  "forgotPassword": "Forgot password?",
   "myProfile": "My Profile",
   "privacyPolicy": "Privacy Policy",
   "myPosts": "My Posts",
@@ -117,5 +118,7 @@
   "newPassword": "New Password",
   "confirmNewPassword": "Confirm New Password",
   "passwordsDoNotMatch": "The two passwords do not match",
-  "confirmReset": "Confirm Reset"
+  "confirmReset": "Confirm Reset",
+  "passwordResetSuccessLogin": "Password has been reset. Please log in.",
+  "usernameAndEmailMismatch": "Username and email mismatch"
 }
