@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:sport_flutter/data/cache/video_cache_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:iconsax/iconsax.dart';
@@ -33,7 +34,7 @@ class _CachedVideoPlayerState extends State<CachedVideoPlayer> {
   }
 
   Future<void> _initializePlayer() async {
-    final fileInfo = await DefaultCacheManager().getFileFromCache(widget.videoUrl);
+    final fileInfo = await CustomVideoCacheManager().instance.getFileFromCache(widget.videoUrl);
     
     VideoPlayerController controller;
     if (fileInfo != null) {
@@ -41,7 +42,7 @@ class _CachedVideoPlayerState extends State<CachedVideoPlayer> {
     } else {
       controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       // Download file to cache for next time
-      DefaultCacheManager().downloadFile(widget.videoUrl);
+      CustomVideoCacheManager().instance.downloadFile(widget.videoUrl);
     }
 
     _controller = controller;

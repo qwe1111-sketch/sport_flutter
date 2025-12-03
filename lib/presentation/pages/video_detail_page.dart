@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sport_flutter/data/cache/video_cache_manager.dart';
 import 'package:sport_flutter/data/datasources/auth_remote_data_source.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
@@ -39,6 +40,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   late VideoPlayerController _controller;
   late Video _currentVideo;
   late final CommentBloc _commentBloc;
+  late Future<void> _initializeVideoPlayerFuture;
 
   bool _isFullScreen = false;
   bool _isLiked = false;
@@ -55,7 +57,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     super.initState();
     _currentVideo = widget.video;
     _commentBloc = CommentBloc();
-    _initializePlayer(_currentVideo.videoUrl);
+    _initializeVideoPlayerFuture = _initializePlayer(_currentVideo.videoUrl);
     
     _fetchFullVideoDetails(); 
     
@@ -141,13 +143,32 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     };
   }
 
-  void _initializePlayer(String url) {
-    _controller = VideoPlayerController.networkUrl(Uri.parse(url))
-      ..initialize().then((_) {
-        if (mounted) setState(() {});
+  Future<void> _initializePlayer(String url) async {
+    final fileInfo = await CustomVideoCacheManager().instance.getFileFromCache(url);
+
+    if (fileInfo != null) {
+      _controller = VideoPlayerController.file(fileInfo.file);
+    } else {
+      _controller = VideoPlayerController.networkUrl(Uri.parse(url));
+      CustomVideoCacheManager().instance.downloadFile(url);
+    }
+
+    _controller.addListener(_videoListener);
+    try {
+      await _controller.initialize();
+      if (mounted) {
         _controller.play();
-      })
-      ..addListener(_videoListener);
+      }
+    } catch (e) {
+      if (mounted) {
+        debugPrint("Video Player Initialization Error: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("无法加载视频: $e"),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _changeVideo(Video newVideo) async {
@@ -158,9 +179,9 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       _currentVideo = newVideo;
       _isLoading = true;
       _viewRecorded = false;
+      _initializeVideoPlayerFuture = _initializePlayer(newVideo.videoUrl);
     });
 
-    _initializePlayer(newVideo.videoUrl);
     _commentBloc.add(FetchComments(newVideo.id));
     await _fetchFullVideoDetails(videoId: newVideo.id);
   }
@@ -303,18 +324,28 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final playerWidget = FutureBuilder(
+      future: _initializeVideoPlayerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            _controller.value.isInitialized) {
+          return VideoPlayerWidget(
+            controller: _controller,
+            isFullScreen: _isFullScreen,
+            onToggleFullScreen: _toggleFullScreen,
+          );
+        }
+        return Container(
+          color: Colors.black,
+          child: const Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+
     if (_isFullScreen) {
       return Scaffold(
         backgroundColor: Colors.black,
-        body: Center(
-          child: _controller.value.isInitialized
-              ? VideoPlayerWidget(
-                  controller: _controller,
-                  isFullScreen: _isFullScreen,
-                  onToggleFullScreen: _toggleFullScreen,
-                )
-              : const CircularProgressIndicator(),
-        ),
+        body: Center(child: playerWidget),
       );
     }
 
@@ -330,16 +361,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
           children: [
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: _controller.value.isInitialized
-                  ? VideoPlayerWidget(
-                      controller: _controller,
-                      isFullScreen: _isFullScreen,
-                      onToggleFullScreen: _toggleFullScreen,
-                    )
-                  : Container(
-                      color: Colors.black,
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
+              child: playerWidget,
             ),
             Expanded(child: _buildMetaAndCommentsSection()),
           ],

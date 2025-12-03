@@ -52,6 +52,8 @@ import 'package:sport_flutter/domain/usecases/create_post_comment.dart';
 import 'package:sport_flutter/domain/usecases/like_post_comment.dart';
 import 'package:sport_flutter/domain/usecases/dislike_post_comment.dart';
 import 'package:sport_flutter/domain/usecases/delete_post_comment.dart';
+import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart';
+
 
 // DI - Services
 import 'package:sport_flutter/services/oss_upload_service.dart';
@@ -64,6 +66,7 @@ import 'package:sport_flutter/presentation/bloc/favorites_bloc.dart'; // New
 import 'package:sport_flutter/presentation/bloc/locale_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/community_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
+import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 
 
 // Cache
@@ -117,6 +120,7 @@ void main() async {
   final likePostCommentUseCase = LikePostCommentUseCase(postCommentRepository);
   final dislikePostCommentUseCase = DislikePostCommentUseCase(postCommentRepository);
   final deletePostCommentUseCase = DeletePostCommentUseCase(postCommentRepository);
+  final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
 
   // Services
   final ossUploadService = OssUploadService(stsDataSource: stsRemoteDataSource, dio: dioClient);
@@ -139,6 +143,7 @@ void main() async {
         RepositoryProvider.value(value: createCommunityPostUseCase),
         RepositoryProvider.value(value: favoriteVideoUseCase),
         RepositoryProvider.value(value: unfavoriteVideoUseCase),
+        RepositoryProvider.value(value: getRecommendedVideosUseCase),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -155,6 +160,11 @@ void main() async {
               getUserProfileUseCase: getUserProfileUseCase,
               updateUserProfileUseCase: updateUserProfileUseCase,
             )..add(AppStarted()), // Dispatch event on creation
+          ),
+          BlocProvider(
+            create: (context) => RecommendedVideoBloc(
+              getRecommendedVideos: getRecommendedVideosUseCase,
+            )..add(FetchRecommendedVideos()),
           ),
           BlocProvider(
             create: (context) => VideoBloc(

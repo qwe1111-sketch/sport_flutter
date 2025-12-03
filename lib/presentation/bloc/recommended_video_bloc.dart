@@ -62,14 +62,18 @@ class RecommendedVideoBloc extends Bloc<RecommendedVideoEvent, RecommendedVideoS
     FetchRecommendedVideos event,
     Emitter<RecommendedVideoState> emit,
   ) async {
-    if (event.isRefresh || state is! RecommendedVideoLoaded) {
-      emit(RecommendedVideoLoading());
+    // Only fetch videos if the list is not already loaded, unless a refresh is forced.
+    final isLoaded = state is RecommendedVideoLoaded;
+    if (!isLoaded || event.isRefresh) {
+      if (!isLoaded) { // Show loading only on initial load
+        emit(RecommendedVideoLoading());
+      } 
       try {
         final videos = await getRecommendedVideos();
         emit(RecommendedVideoLoaded(videos));
       } catch (e) {
         emit(RecommendedVideoError(e.toString()));
       }
-    } 
+    }
   }
 }

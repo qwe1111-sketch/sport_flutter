@@ -33,12 +33,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   Exception _handleError(http.Response response) {
+    final path = response.request?.url.path;
+    if (path != null &&
+        (path.endsWith('/send-code') ||
+            path.endsWith('/send-reset-code') ||
+            path.endsWith('/forgot-password/send-code'))) {
+      return Exception('验证码发送失败，请稍后重试。');
+    }
     try {
       final errorBody = jsonDecode(response.body);
-      final errorMessage = errorBody['error'] ?? errorBody['message'] ?? 'An unknown error occurred';
+      final errorMessage =
+          errorBody['error'] ?? errorBody['message'] ?? 'An unknown error occurred';
       return Exception(errorMessage);
     } catch (e) {
-      return Exception('Failed to connect to the server. Status code: ${response.statusCode}');
+      return Exception(
+          'Failed to connect to the server. Status code: ${response.statusCode}');
     }
   }
 

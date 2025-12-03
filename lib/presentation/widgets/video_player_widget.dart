@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -26,19 +27,44 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void initState() {
     super.initState();
     _startHideTimer();
+    widget.controller.addListener(_onControllerUpdate);
+    if (widget.controller.value.isInitialized) {
+      widget.controller.play();
+    }
   }
 
   @override
   void dispose() {
     _hideControlsTimer?.cancel();
+    widget.controller.removeListener(_onControllerUpdate);
     super.dispose();
+  }
+
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _startHideTimer() {
     _hideControlsTimer?.cancel();
     _hideControlsTimer = Timer(const Duration(seconds: 4), () {
-      if (mounted) setState(() => _showControls = false);
+      if (mounted && widget.controller.value.isPlaying) {
+        setState(() => _showControls = false);
+      }
     });
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    if (hours > 0) {
+      return "$hours:${twoDigits(minutes)}:${twoDigits(seconds)}";
+    } else {
+      return "${twoDigits(minutes)}:${twoDigits(seconds)}";
+    }
   }
 
   @override
@@ -49,7 +75,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         if (_showControls) _startHideTimer();
       },
       child: AspectRatio(
-        aspectRatio: widget.controller.value.isInitialized ? widget.controller.value.aspectRatio : 16 / 9,
+        aspectRatio: widget.controller.value.isInitialized
+            ? widget.controller.value.aspectRatio
+            : 16 / 9,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -69,16 +97,26 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   Widget _buildControls(BuildContext context) {
+    final isInitialized = widget.controller.value.isInitialized;
+    final position = isInitialized ? widget.controller.value.position : Duration.zero;
+    final duration = isInitialized ? widget.controller.value.duration : Duration.zero;
+    final hasDuration = duration > Duration.zero;
+
     return Stack(
       children: [
         Center(
           child: IconButton(
-            icon: Icon(widget.controller.value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled),
+            icon: Icon(widget.controller.value.isPlaying
+                ? Icons.pause_circle_filled
+                : Icons.play_circle_filled),
             onPressed: () {
               _startHideTimer();
               if (widget.controller.value.isPlaying) {
                 widget.controller.pause();
               } else {
+                if (position >= duration && hasDuration) {
+                  widget.controller.seekTo(Duration.zero);
+                }
                 widget.controller.play();
               }
               setState(() {});
@@ -96,14 +134,41 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                VideoProgressIndicator(widget.controller, allowScrubbing: true),
+                if (hasDuration)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Row(
+                      children: [
+                        Text(_formatDuration(position),
+                            style: const TextStyle(color: Colors.white)),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: VideoProgressIndicator(
+                              widget.controller,
+                              allowScrubbing: true,
+                              colors: VideoProgressColors(
+                                playedColor: Theme.of(context).primaryColor,
+                                bufferedColor: Colors.grey.withOpacity(0.5),
+                                backgroundColor: Colors.black.withOpacity(0.2),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Text(_formatDuration(duration),
+                            style: const TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
                 Row(
                   children: [
                     const SizedBox(width: 8),
                     _buildSpeedMenu(),
                     const Spacer(),
                     IconButton(
-                      icon: Icon(widget.isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen),
+                      icon: Icon(widget.isFullScreen
+                          ? Icons.fullscreen_exit
+                          : Icons.fullscreen),
                       onPressed: widget.onToggleFullScreen,
                       color: Colors.white,
                     )

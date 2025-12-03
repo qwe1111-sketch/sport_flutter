@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
-import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
@@ -25,15 +25,13 @@ class VideosPage extends StatefulWidget {
   State<VideosPage> createState() => _VideosPageState();
 }
 
-class _VideosPageState extends State<VideosPage> with RouteAware, WidgetsBindingObserver {
+class _VideosPageState extends State<VideosPage> with RouteAware {
   late final List<VideoBloc> _videoBlocs;
-  late final RecommendedVideoBloc _recommendedVideoBloc;
   bool _didInit = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -52,7 +50,6 @@ class _VideosPageState extends State<VideosPage> with RouteAware, WidgetsBinding
     final favoriteVideoUseCase = FavoriteVideo(videoRepository);
     final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
     final cacheManager = RepositoryProvider.of<CacheManager>(context);
-    final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
 
     _videoBlocs = List.generate(3, (i) {
       final bloc = VideoBloc(
@@ -64,20 +61,14 @@ class _VideosPageState extends State<VideosPage> with RouteAware, WidgetsBinding
       bloc.add(FetchVideos(Difficulty.values[i]));
       return bloc;
     });
-
-    _recommendedVideoBloc = RecommendedVideoBloc(
-      getRecommendedVideos: getRecommendedVideosUseCase,
-    )..add(FetchRecommendedVideos());
   }
 
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
-    WidgetsBinding.instance.removeObserver(this);
     for (final bloc in _videoBlocs) {
       bloc.close();
     }
-    _recommendedVideoBloc.close();
     super.dispose();
   }
 
@@ -89,38 +80,25 @@ class _VideosPageState extends State<VideosPage> with RouteAware, WidgetsBinding
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      for (int i = 0; i < _videoBlocs.length; i++) {
-        _videoBlocs[i].add(FetchVideos(Difficulty.values[i], isRefresh: true));
-      }
-      _recommendedVideoBloc.add(const FetchRecommendedVideos(isRefresh: true));
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return BlocProvider.value(
-      value: _recommendedVideoBloc,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.sportVideos),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_didInit) const _VideoCarousel(),
-              const SizedBox(height: 24),
-              if (_didInit)
-                ...[
-                  _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
-                  _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
-                  _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
-                ]
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.sportVideos),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_didInit) const _VideoCarousel(),
+            const SizedBox(height: 24),
+            if (_didInit)
+              ...[
+                _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
+                _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
+                _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
+              ]
+          ],
         ),
       ),
     );
@@ -187,15 +165,14 @@ class _VideoCarouselState extends State<_VideoCarousel> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
-                        video.thumbnailUrl, 
+                      CachedNetworkImage(
+                        imageUrl: video.thumbnailUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.error_outline, color: Colors.grey),
-                          );
-                        },
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.error_outline, color: Colors.grey),
+                        ),
                       ),
                       Container(
                         decoration: BoxDecoration(
@@ -327,19 +304,18 @@ class _VideoThumbnailCard extends StatelessWidget {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(
-                    video.thumbnailUrl,
+                  child: CachedNetworkImage(
+                    imageUrl: video.thumbnailUrl,
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: const Icon(Icons.error_outline, color: Colors.grey),
-                      );
-                    },
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: const Icon(Icons.error_outline, color: Colors.grey),
+                    ),
                   ),
                 ),
               ),
