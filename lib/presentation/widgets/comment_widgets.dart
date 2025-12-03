@@ -397,7 +397,7 @@ class _CommentInputFieldState extends State<_CommentInputField> {
               IconButton(
                 icon: const Icon(Iconsax.send_1),
                 onPressed: _submitComment,
-                color: Colors.blueAccent,
+                color: Theme.of(context).primaryColor,
               ),
             ],
           ),

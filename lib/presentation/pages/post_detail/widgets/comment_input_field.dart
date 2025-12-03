@@ -47,6 +47,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
 
     return Material(
       elevation: 8.0, // Add some shadow
+      color: Colors.white, // Set background color to white
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -73,7 +74,7 @@ class _CommentInputFieldState extends State<CommentInputField> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Iconsax.send_1),
+                  icon: Icon(Iconsax.send_1, color: Theme.of(context).primaryColor),
                   onPressed: _submitComment,
                 ),
               ],
