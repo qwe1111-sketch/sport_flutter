@@ -33,7 +33,7 @@ class VideoActionButtons extends StatelessWidget {
         Expanded(
           child: _buildActionButton(
             context: context,
-            icon: isLiked ? Iconsax.like_1 : Iconsax.like,
+            icon: Iconsax.like,
             label: _formatNumber(context, likeCount),
             onPressed: onLike,
             isSelected: isLiked,
