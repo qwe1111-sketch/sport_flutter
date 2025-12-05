@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Sensitive credentials and keystore files
+# These files should not be checked into version control.
+/android/app/key.properties
+/android/app/*.jks
+/android/app/*.keystore
