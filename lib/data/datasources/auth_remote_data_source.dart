@@ -17,7 +17,7 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
-  static const String _baseUrl = 'http://120.55.88.185:3030/api/auth';
+  static const String _baseUrl = 'http://47.253.229.197:3030/api/auth';
 
   AuthRemoteDataSourceImpl({required this.client});
 

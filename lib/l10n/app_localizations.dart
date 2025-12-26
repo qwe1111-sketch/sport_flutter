@@ -583,6 +583,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No replies yet.'**
   String get noRepliesYet;
+
+  /// No description provided for @invitationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation Code'**
+  String get invitationCode;
+
+  /// No description provided for @incorrectInvitationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect invitation code'**
+  String get incorrectInvitationCode;
+
+  /// No description provided for @pleaseRequestVerificationCodeFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please request verification code first'**
+  String get pleaseRequestVerificationCodeFirst;
+
+  /// No description provided for @invalidVerificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid verification code.'**
+  String get invalidVerificationCode;
 }
 
 class _AppLocalizationsDelegate

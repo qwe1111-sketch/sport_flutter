@@ -303,4 +303,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noRepliesYet => '暂无回复。';
+
+  @override
+  String get invitationCode => '邀请码';
+
+  @override
+  String get incorrectInvitationCode => '邀请码不正确';
+
+  @override
+  String get pleaseRequestVerificationCodeFirst => '请先获取验证码';
+
+  @override
+  String get invalidVerificationCode => '无效的验证码。';
 }

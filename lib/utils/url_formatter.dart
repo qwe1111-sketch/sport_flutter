@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 class UrlFormatter {
-  static const String _baseUrl = 'http://192.168.4.140:3000';
+  static const String _baseUrl = 'http://47.253.229.197:3030';
 
   static String format(String? relativePath) {
     log('[UrlFormatter] Formatting path: "$relativePath"');

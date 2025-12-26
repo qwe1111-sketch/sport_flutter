@@ -154,6 +154,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final GetUserProfile getUserProfileUseCase;
   final UpdateUserProfile updateUserProfileUseCase;
 
+  bool _isCodeSentForRegistration = false;
+
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
@@ -183,6 +185,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (message == '用户名与邮箱不匹配') {
         return 'usernameAndEmailMismatch';
       }
+      if (message == 'Invalid verification code.') {
+        return 'invalidVerificationCode';
+      }
       return message;
     }
     return 'An unknown error occurred';
@@ -207,6 +212,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onSendCode(SendCodeEvent event, Emitter<AuthState> emit) async {
     try {
       await sendCodeUseCase(event.email);
+      _isCodeSentForRegistration = true;
       emit(AuthCodeSent());
     } catch (e) {
       emit(AuthError(_extractErrorMessage(e), errorType: 'SendCodeError'));
@@ -256,9 +262,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
+    if (!_isCodeSentForRegistration) {
+      emit(const AuthError('pleaseRequestVerificationCodeFirst'));
+      return;
+    }
     emit(const AuthLoading());
     try {
       await registerUseCase(event.username, event.email, event.password, event.code);
+      _isCodeSentForRegistration = false;
       emit(AuthRegistrationSuccess());
     } catch (e) {
       emit(AuthError(_extractErrorMessage(e)));

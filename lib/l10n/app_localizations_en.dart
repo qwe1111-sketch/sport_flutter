@@ -307,4 +307,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRepliesYet => 'No replies yet.';
+
+  @override
+  String get invitationCode => 'Invitation Code';
+
+  @override
+  String get incorrectInvitationCode => 'Incorrect invitation code';
+
+  @override
+  String get pleaseRequestVerificationCodeFirst =>
+      'Please request verification code first';
+
+  @override
+  String get invalidVerificationCode => 'Invalid verification code.';
 }

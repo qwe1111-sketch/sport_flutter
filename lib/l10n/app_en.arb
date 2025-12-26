@@ -133,5 +133,9 @@
   "confirmReset": "Confirm Reset",
   "passwordResetSuccessLogin": "Password has been reset. Please log in.",
   "usernameAndEmailMismatch": "Username and email mismatch",
-  "noRepliesYet": "No replies yet."
+  "noRepliesYet": "No replies yet.",
+  "invitationCode": "Invitation Code",
+  "incorrectInvitationCode": "Incorrect invitation code",
+  "pleaseRequestVerificationCodeFirst": "Please request verification code first",
+  "invalidVerificationCode": "Invalid verification code."
 }

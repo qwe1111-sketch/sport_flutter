@@ -19,11 +19,19 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _codeController = TextEditingController();
+  final _invitationCodeController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isAgreementChecked = false;
   bool _isCodeSent = false;
+  bool _isInvitationCodeCorrect = false; // New state
   Timer? _timer;
   int _countdown = 60;
+
+  @override
+  void initState() {
+    super.initState();
+    _invitationCodeController.addListener(_checkInvitationCode);
+  }
 
   @override
   void dispose() {
@@ -32,7 +40,18 @@ class _RegisterPageState extends State<RegisterPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _codeController.dispose();
+    _invitationCodeController.removeListener(_checkInvitationCode);
+    _invitationCodeController.dispose();
     super.dispose();
+  }
+
+  void _checkInvitationCode() {
+    final isCorrect = _invitationCodeController.text == 'ABCDEFG';
+    if (isCorrect != _isInvitationCodeCorrect) {
+      setState(() {
+        _isInvitationCodeCorrect = isCorrect;
+      });
+    }
   }
 
   void _startCountdown() {
@@ -106,10 +125,36 @@ class _RegisterPageState extends State<RegisterPage> {
           if (state is AuthError) {
             if (state.errorType == 'SendCodeError') {
               _timer?.cancel();
-              setState(() => _isCodeSent = false);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() => _isCodeSent = false);
+                }
+              });
             }
+            
+            String message;
+            switch (state.message) {
+              case 'pleaseRequestVerificationCodeFirst':
+                message = l10n.pleaseRequestVerificationCodeFirst;
+                break;
+              case 'incorrectInvitationCode':
+                message = l10n.incorrectInvitationCode;
+                break;
+              case 'invalidUsernameOrPassword':
+                message = l10n.invalidUsernameOrPassword;
+                break;
+              case 'usernameAndEmailMismatch':
+                message = l10n.usernameAndEmailMismatch;
+                break;
+              case 'invalidVerificationCode':
+                message = l10n.invalidVerificationCode;
+                break;
+              default:
+                message = state.message;
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: colorScheme.error),
+              SnackBar(content: Text(message), backgroundColor: colorScheme.error),
             );
           }
           if (state is AuthCodeSent) {
@@ -142,7 +187,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 prefixIcon: const Icon(Icons.person_outline),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                                 filled: true,
-                                fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
+                                fillColor: colorScheme.surfaceContainerHighest,
                               ),
                               validator: (value) => value!.isEmpty ? l10n.enterUsername : null,
                             ),
@@ -154,7 +199,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 prefixIcon: const Icon(Icons.email_outlined),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                                 filled: true,
-                                fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
+                                fillColor: colorScheme.surfaceContainerHighest,
                               ),
                               validator: (value) => value!.isEmpty || !value.contains('@') ? l10n.enterValidEmail : null,
                             ),
@@ -170,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                                 filled: true,
-                                fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
+                                fillColor: colorScheme.surfaceContainerHighest,
                               ),
                               obscureText: !_isPasswordVisible,
                               validator: (value) => value!.length < 6 ? l10n.passwordTooShort : null,
@@ -187,7 +232,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       prefixIcon: const Icon(Icons.verified_user_outlined),
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                                       filled: true,
-                                      fillColor: colorScheme.surfaceVariant.withOpacity(0.5),
+                                      fillColor: colorScheme.surfaceContainerHighest,
                                     ),
                                     validator: (value) => value!.isEmpty ? l10n.enterVerificationCode : null,
                                   ),
@@ -202,6 +247,24 @@ class _RegisterPageState extends State<RegisterPage> {
                                   child: Text(_isCodeSent ? '$_countdown s' : l10n.sendVerificationCode),
                                 ),
                               ],
+                            ),
+                             const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _invitationCodeController,
+                              decoration: InputDecoration(
+                                labelText: l10n.invitationCode,
+                                prefixIcon: const Icon(Icons.code),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                filled: true,
+                                fillColor: colorScheme.surfaceContainerHighest,
+                              ),
+                              obscureText: true,
+                              validator: (value) {
+                                if (value != 'ABCDEFG') {
+                                  return l10n.incorrectInvitationCode;
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 16),
                             Row(
@@ -233,7 +296,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             const SizedBox(height: 24),
                             ElevatedButton(
-                              onPressed: _isAgreementChecked ? _register : null,
+                              onPressed: _isAgreementChecked && _isInvitationCodeCorrect ? _register : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colorScheme.primary,
                                 foregroundColor: colorScheme.onPrimary,
