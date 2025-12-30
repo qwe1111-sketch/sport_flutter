@@ -1,6 +1,8 @@
 
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
@@ -28,7 +30,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     super.initState();
     _startHideTimer();
     widget.controller.addListener(_onControllerUpdate);
-    if (widget.controller.value.isInitialized) {
+    if (widget.controller.value.isInitialized && !widget.controller.value.hasError) {
       widget.controller.play();
     }
   }
@@ -41,9 +43,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   void _onControllerUpdate() {
-    if (mounted) {
-      setState(() {});
+    if (!mounted) {
+      return;
     }
+    if (widget.controller.value.hasError) {
+      log('VideoPlayer Error: ${widget.controller.value.errorDescription}');
+    }
+    setState(() {});
   }
 
   void _startHideTimer() {
@@ -69,27 +75,53 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = widget.controller;
+
+    Widget playerContent;
+    if (controller.value.hasError) {
+      playerContent = Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 48),
+            const SizedBox(height: 8),
+            Text(
+              l10n.videoLoadError,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      );
+    } else if (controller.value.isInitialized) {
+      playerContent = VideoPlayer(controller);
+    } else {
+      playerContent = const Center(child: CircularProgressIndicator());
+    }
+
     return GestureDetector(
       onTap: () {
+        if (controller.value.hasError) return;
         setState(() => _showControls = !_showControls);
         if (_showControls) _startHideTimer();
       },
       child: AspectRatio(
-        aspectRatio: widget.controller.value.isInitialized
-            ? widget.controller.value.aspectRatio
+        aspectRatio: controller.value.isInitialized && !controller.value.hasError
+            ? controller.value.aspectRatio
             : 16 / 9,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (widget.controller.value.isInitialized)
-              VideoPlayer(widget.controller)
-            else
-              const Center(child: CircularProgressIndicator()),
-            AnimatedOpacity(
-              opacity: _showControls ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: _buildControls(context),
-            )
+            Container(
+              color: Colors.black,
+              child: Center(child: playerContent),
+            ),
+            if (!controller.value.hasError)
+              AnimatedOpacity(
+                opacity: _showControls ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: _buildControls(context),
+              )
           ],
         ),
       ),

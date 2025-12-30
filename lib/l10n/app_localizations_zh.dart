@@ -315,4 +315,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get invalidVerificationCode => '无效的验证码。';
+
+  @override
+  String get videoLoadError => '无法加载视频';
 }

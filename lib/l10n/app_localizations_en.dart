@@ -320,4 +320,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidVerificationCode => 'Invalid verification code.';
+
+  @override
+  String get videoLoadError => 'Unable to load video';
 }

@@ -137,5 +137,6 @@
   "invitationCode": "邀请码",
   "incorrectInvitationCode": "邀请码不正确",
   "pleaseRequestVerificationCodeFirst": "请先获取验证码",
-  "invalidVerificationCode": "无效的验证码。"
+  "invalidVerificationCode": "无效的验证码。",
+  "videoLoadError": "无法加载视频"
 }

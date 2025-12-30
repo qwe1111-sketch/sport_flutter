@@ -1,7 +1,9 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,6 +54,16 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
 
   final String _apiBaseUrl = AuthRemoteDataSourceImpl.getBaseApiUrl();
 
+  // Baidu Translate Credentials
+  final String _baiduAppId = '20230522001685444';
+  final String _baiduSecretKey = 'qcEQl156_3sdFvOXTLup';
+
+  // In-memory cache for translations
+  final Map<String, String> _translationCache = {};
+
+  String _translatedTitle = "";
+  String _translatedDesc = "";
+
   @override
   void initState() {
     super.initState();
@@ -59,9 +71,13 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     _commentBloc = CommentBloc();
     _initializeVideoPlayerFuture = _initializePlayer(_currentVideo.videoUrl);
     
-    _fetchFullVideoDetails(); 
-    
     _commentBloc.add(FetchComments(_currentVideo.id));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fetchFullVideoDetails();
   }
 
   @override
@@ -88,6 +104,10 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
           _currentVideo = fullVideo;
           _isFavorited = fullVideo.isFavorited;
         });
+        
+        final currentLocale = Localizations.localeOf(context).languageCode;
+        await _translateContent(currentLocale);
+
         context.read<VideoBloc>().add(FetchVideosByDifficulty(_currentVideo.difficulty));
         await _fetchInteractiveStatus();
       }
@@ -108,6 +128,78 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<String> _manualBaiduTranslate(String query, String toLang) async {
+    final cacheKey = '$toLang:$query';
+    if (_translationCache.containsKey(cacheKey)) {
+      return _translationCache[cacheKey]!;
+    }
+
+    const String baseUrl = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
+    final String salt = Random().nextInt(100000).toString();
+    final String sign = md5.convert(utf8.encode('$_baiduAppId$query$salt$_baiduSecretKey')).toString();
+
+    final uri = Uri.parse(baseUrl).replace(queryParameters: {
+      'q': query,
+      'from': 'auto',
+      'to': toLang,
+      'appid': _baiduAppId,
+      'salt': salt,
+      'sign': sign,
+    });
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      if (body['trans_result'] != null && body['trans_result'].isNotEmpty) {
+        final translatedText = body['trans_result'][0]['dst'];
+        _translationCache[cacheKey] = translatedText;
+        return translatedText;
+      } else if (body['error_code'] != null) {
+        throw Exception('Baidu API Error: ${body['error_msg']} (code: ${body['error_code']})');
+      }
+    }
+    throw Exception('Failed to translate text.');
+  }
+
+  Future<void> _translateContent(String toLang) async {
+    if (toLang == 'zh') {
+      if (mounted) {
+        setState(() {
+          _translatedTitle = _currentVideo.title;
+          _translatedDesc = _currentVideo.description ?? '';
+        });
+      }
+      return;
+    }
+
+    try {
+      final titleTranslation = _manualBaiduTranslate(_currentVideo.title, toLang);
+      final descTranslation = _manualBaiduTranslate(_currentVideo.description ?? '', toLang);
+
+      final results = await Future.wait([titleTranslation, descTranslation]);
+
+      if (mounted) {
+        setState(() {
+          _translatedTitle = results[0];
+          _translatedDesc = results[1];
+        });
+      }
+      
+    } catch (e) {
+      debugPrint("翻译失败：$e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('翻译失败: $e')),
+        );
+        setState(() {
+          _translatedTitle = _currentVideo.title;
+          _translatedDesc = _currentVideo.description ?? '';
+        });
       }
     }
   }
@@ -176,7 +268,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
 
     await _controller.dispose();
     setState(() {
-      _currentVideo = newVideo;
       _isLoading = true;
       _viewRecorded = false;
       _initializeVideoPlayerFuture = _initializePlayer(newVideo.videoUrl);
@@ -366,10 +457,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
               length: 2,
               child: NestedScrollView(
                 headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                  return <Widget>[
-                    SliverAppBar(
-                      title: Text(_currentVideo.title),
-                      floating: true,
+                  return <Widget>[SliverAppBar(
+                      title: Text(_translatedTitle),                      floating: true,
                       pinned: false,
                       snap: true,
                     ),
@@ -400,7 +489,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
                                 recommendedVideos = state.videos;
                               }
                               return VideoIntroPanel(
-                                currentVideo: _currentVideo,
+                                currentVideo: _currentVideo.copyWith(title: _translatedTitle, description: _translatedDesc),
                                 recommendedVideos: recommendedVideos,
                                 isLiked: _isLiked,
                                 isDisliked: _isDisliked,

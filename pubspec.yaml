@@ -52,6 +52,9 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.13.1 # Add this line
 
+dependency_overrides:
+  http: ^1.2.1
+
 flutter_icons:
   android: true
   ios: true

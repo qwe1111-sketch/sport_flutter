@@ -607,6 +607,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid verification code.'**
   String get invalidVerificationCode;
+
+  /// No description provided for @videoLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load video'**
+  String get videoLoadError;
 }
 
 class _AppLocalizationsDelegate

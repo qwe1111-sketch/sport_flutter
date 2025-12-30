@@ -137,5 +137,6 @@
   "invitationCode": "Invitation Code",
   "incorrectInvitationCode": "Incorrect invitation code",
   "pleaseRequestVerificationCodeFirst": "Please request verification code first",
-  "invalidVerificationCode": "Invalid verification code."
+  "invalidVerificationCode": "Invalid verification code.",
+  "videoLoadError": "Unable to load video"
 }
